@@ -102,7 +102,7 @@ gcloud iam service-accounts add-iam-policy-binding \
 
 ```
 
-```gcloud auth application-default login```
+`gcloud auth application-default login`
 
 3. Navigate to the `terraform` directory and initialize Terraform:
    ```
@@ -120,30 +120,30 @@ gcloud iam service-accounts add-iam-policy-binding \
    ```
 
 6. Once the cluster is up and running, navigate to the `kubernetes/flux-system` directory and apply the Flux configurations:
-   ```
-   gcloud container clusters get-credentials ai-platform-cluster
-   ```
+`gcloud container clusters get-credentials ai-platform-cluster`
 
 7. Install Flux on the cluster:
 
 # Install Flux CLI
-brew install fluxcd/tap/flux
+`brew install fluxcd/tap/flux`
 
 # Bootstrap Flux (replace with your Git repository)
+```
 flux bootstrap github \
   --owner=$GITHUB_USER \
   --repository=$GITHUB_REPO \
   --path=kubernetes \
   --personal
-- or -
-
+```
+--- or ----
+```
 flux bootstrap github \
   --owner=$GITHUB_OWNER \
   --repository=$GITHUB_REPO \
   --branch=main \
   --path=kubernetes \
   --token-auth
-
+```
 1. Deploy Backstage:
 
 # Install Backstage CLI
