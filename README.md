@@ -122,8 +122,6 @@ gcloud iam service-accounts add-iam-policy-binding \
 6. Once the cluster is up and running, navigate to the `kubernetes/flux-system` directory and apply the Flux configurations:
    ```
    gcloud container clusters get-credentials ai-platform-cluster
-   kubectl apply -f gotk-components.yaml
-   kubectl apply -f gotk-sync.yaml
    ```
 
 7. Install Flux on the cluster:
