@@ -7,39 +7,60 @@ data:
   app-config.yaml: |
     app:
       title: ML Platform
-      baseUrl: http://localhost:7007
-    
+      baseUrl: http://localhost:8080
+
     organization:
-      name: RE-CINQ
-    
+      name: ML Engineering Team
+
     backend:
-      baseUrl: http://localhost:7007
+      baseUrl: http://localhost:8080
       listen:
         port: 7007
       cors:
-        origin: http://localhost:7007
-    
+        origin: http://localhost:8080
+      database:
+        client: better-sqlite3
+        connection: ':memory:'
+
     catalog:
-      import:
-        entityFilename: catalog-info.yaml
-        pullRequestBranchName: backstage-integration
-      rules:
-        - allow: [Component, System, API, Resource, Location]
-    
+      locations:
+        - type: file
+          target: ../../examples/catalog-info.yaml
+
+    techdocs:
+      builder: 'local'
+      generator:
+        runIn: 'docker'
+      publisher:
+        type: 'local'
+
+    scaffolder:
+      templates:
+        - id: ml-model-template
+          type: website
+          title: ML Model Deployment
+          description: Deploy an ML model from Hugging Face to GKE with GPU support
+          tags:
+            - ml
+            - model
+            - gpu
+          path: ./templates/ml-model-template.yaml
+
+    grafana:
+      # Even if you don't use Grafana, the config needs to exist
+      domain: example.com
+      # You can safely leave these as defaults for now
+      dashboardPattern: 'kubernetes-'
+      ingressUrl: 'https://grafana.example.com'
+      isEnabled: false
+
     kubernetes:
       serviceLocatorMethod:
         type: 'multiTenant'
       clusterLocatorMethods:
         - type: 'config'
           clusters:
-            - url: kubernetes.default.svc
-              name: gke-cluster
-              authProvider: 'serviceAccount'
+            - name: 'ml-platform'
+              url: 'https://kubernetes.default.svc'
+              serviceAccountToken: # This will be populated from the service account
               skipTLSVerify: true
-    
-    proxy:
-      '/huggingface':
-        target: 'https://huggingface.co'
-        changeOrigin: true
-        pathRewrite:
-          '^/huggingface': ''
