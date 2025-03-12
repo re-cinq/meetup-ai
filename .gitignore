@@ -140,3 +140,4 @@ terraform/.terraform.lock.hcl
 terraform/.terraform.tfstate.lock.info
 terraform/.terraform/
 terraform/terraform.tfstate
+.sec.env

@@ -4,10 +4,9 @@ metadata:
   name: backstage
   namespace: default
 spec:
-  type: ClusterIP
-  ports:
-    - port: 7007
-      targetPort: 7007
-      protocol: TCP
   selector:
     app: backstage
+  ports:
+  - port: 80
+    targetPort: 7007
+  type: LoadBalancer

@@ -1,39 +1,29 @@
 resource "google_container_cluster" "primary" {
   name     = var.cluster_name
-  location = var.region
+  location = var.zone  # Using zone instead of region for GPU compatibility
+  
+  deletion_protection = false
+
+  # Use the default network
+  network    = "default"
+  subnetwork = "default"
 
   # Remove the default node pool since we'll create a separate GPU node pool
   remove_default_node_pool = true
   initial_node_count       = 1
 
-  # Enable Kubernetes Dashboard
   addons_config {
     http_load_balancing {
       disabled = false
     }
-
     horizontal_pod_autoscaling {
       disabled = false
     }
-  }
-
-  # Configure private cluster - updated to use Private Service Connect
-  private_cluster_config {
-    enable_private_nodes    = var.enable_private_nodes
-    enable_private_endpoint = false
-    # Remove the master_ipv4_cidr_block line - not compatible with PSC
-    
-    # Add this for Private Service Connect instead
-    master_global_access_config {
-      enabled = true
+    gcp_filestore_csi_driver_config {
+      enabled = true  # Enable filestore for better storage options
     }
   }
 
-  # Enable network policy
-  network_policy {
-    enabled = true
-  }
-  
   # Configure workload identity
   workload_identity_config {
     workload_pool = "${var.project_id}.svc.id.goog"
@@ -43,34 +33,57 @@ resource "google_container_cluster" "primary" {
   networking_mode = "VPC_NATIVE"
   
   # Configure IP allocation for pods and services
-  ip_allocation_policy {
-    # Let GKE choose the ranges automatically
-  }
+  ip_allocation_policy {}
 }
 
 resource "google_container_node_pool" "gpu_pool" {
   name       = var.node_pool_name
-  location   = var.region
+  location   = var.zone  # Using zone instead of region for GPU compatibility
   cluster    = google_container_cluster.primary.name
-  node_count = var.node_count
+  
+  # Start with just 1 node for testing
+  node_count = 1  
 
+  # Auto-scaling for production
+  autoscaling {
+    min_node_count = 0
+    max_node_count = 3
+  }
+
+  management {
+    auto_repair  = true
+    auto_upgrade = true
+  }
+
+  # Use accelerator-optimized machine type for GPUs
   node_config {
-    machine_type = var.machine_type
-
-    # Specify GPU configuration
+    machine_type = "n1-standard-4"  # A proven compatible machine type with T4 GPUs
+    
+    # GPU config - using a common available GPU type
     guest_accelerator {
+      type  = var.gpu_type  # Using the variable to make it easy to change
       count = var.gpu_count
-      type  = var.gpu_type
+      # GPU sharing feature (optional)
     }
+
+    # Make sure we have enough disk space for NVIDIA drivers and models
+    disk_size_gb = 100
+    disk_type    = "pd-standard"
 
     # Enable workload identity on nodes
     workload_metadata_config {
       mode = "GKE_METADATA"
     }
 
-    # Additional node configuration
+    # Add NVIDIA GPU driver install
     oauth_scopes = [
-      "https://www.googleapis.com/auth/cloud-platform",
+      "https://www.googleapis.com/auth/devstorage.read_only",
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+      "https://www.googleapis.com/auth/service.management.readonly",
+      "https://www.googleapis.com/auth/servicecontrol",
+      "https://www.googleapis.com/auth/trace.append",
+      "https://www.googleapis.com/auth/compute",
     ]
     
     # Add labels to identify GPU nodes
@@ -84,11 +97,17 @@ resource "google_container_node_pool" "gpu_pool" {
       value  = "present"
       effect = "NO_SCHEDULE"
     }
+
+    # Set metadata for auto-installing NVIDIA drivers
+    metadata = {
+      "install-nvidia-driver" = "true"
+    }
   }
-  
-  # NVIDIA GPU driver installation
-  management {
-    auto_repair  = true
-    auto_upgrade = true
+
+  # Important: Set a longer timeframe for GPU node creation
+  timeouts {
+    create = "30m"
+    update = "30m"
+    delete = "30m"
   }
 }

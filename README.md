@@ -5,34 +5,36 @@ This project demonstrates how to deploy a Kubernetes cluster on Google Kubernete
 ## Project Structure
 
 ```
-meetup-ai
-├── terraform               # Terraform configuration files for GKE
-│   ├── main.tf             # Main Terraform configuration
-│   ├── variables.tf        # Input variables for Terraform
-│   ├── outputs.tf          # Outputs of the Terraform deployment
-│   ├── gke.tf              # GKE cluster configuration
-│   └── providers.tf        # Provider configuration for Google Cloud
-├── kubernetes              # Kubernetes manifests and Flux configurations
-│   ├── flux-system
-│   │   ├── gotk-components.yaml  # Flux components configuration
-│   │   └── gotk-sync.yaml        # Flux synchronization configuration
-│   └── manifests
-│       ├── backstage
-│       │   ├── deployment.yaml    # Backstage deployment configuration
-│       │   ├── service.yaml       # Backstage service configuration
-│       │   └── configmap.yaml     # Backstage configuration map
-│       └── ml-models
-│           ├── huggingface-deployment.yaml # Hugging Face model deployment
-│           └── gpu-resources.yaml          # GPU resource specifications
-├── backstage                # Backstage application configuration
-│   ├── app-config.yaml      # Backstage application configuration
-│   ├── catalog-info.yaml     # Backstage catalog metadata
-│   └── templates
-│       └── ml-model-template.yaml  # Template for deploying ML models
-├── scripts                  # Scripts for setup and deployment
-│   ├── setup.sh             # Setup script for initializing the project
-│   └── deploy-model.sh      # Script for deploying ML models
-└── README.md                # Project documentation
+meetup-ai/
+├── .env                             # Environment variables
+├── README.md                        # Project documentation
+├── terraform/
+│   ├── main.tf                      # Main Terraform configuration (delete or empty)
+│   ├── variables.tf                 # Define Terraform variables
+│   ├── providers.tf                 # Provider configuration
+│   ├── gke.tf                       # GKE cluster configuration
+│   └── outputs.tf                   # Output values
+├── kubernetes/
+│   ├── flux-system/
+│   │   ├── gotk-components.yaml     # Flux core components
+│   │   └── gotk-sync.yaml           # Flux Git repository sync configuration
+│   └── manifests/
+│       ├── backstage/
+│       │   ├── deployment.yaml      # Backstage deployment
+│       │   ├── service.yaml         # Backstage service
+│       │   └── configmap.yaml       # Backstage configuration
+│       └── ml-models/
+│           ├── huggingface-deployment.yaml  # Hugging Face model deployment
+│           └── gpu-resources.yaml           # GPU resources configuration
+|           |__ service.yaml                 # Service
+├── backstage/
+│   ├── app-config.yaml              # Backstage application configuration
+│   ├── catalog-info.yaml            # Backstage catalog metadata
+│   └── templates/
+│       └── ml-model-template.yaml   # Template for deploying ML models
+└── scripts/
+    ├── setup.sh                     # Setup script
+    └── deploy-model.sh              # Script for deploying ML models
 ```
 
 ## Getting Started
@@ -104,6 +106,7 @@ gcloud iam service-accounts add-iam-policy-binding \
 
 3. Navigate to the `terraform` directory and initialize Terraform:
    ```
+   source .env
    cd terraform
    terraform init
    ```
@@ -112,16 +115,72 @@ gcloud iam service-accounts add-iam-policy-binding \
 
 5. Apply the Terraform configuration to create the GKE cluster:
    ```
+   terraform plan
    terraform apply
    ```
 
 6. Once the cluster is up and running, navigate to the `kubernetes/flux-system` directory and apply the Flux configurations:
    ```
+   gcloud container clusters get-credentials ai-platform-cluster
    kubectl apply -f gotk-components.yaml
    kubectl apply -f gotk-sync.yaml
    ```
 
-6. Deploy the Backstage application and Hugging Face model using the provided manifests in the `kubernetes/manifests` directory.
+7. Install Flux on the cluster:
+
+# Install Flux CLI
+brew install fluxcd/tap/flux
+
+# Bootstrap Flux (replace with your Git repository)
+flux bootstrap github \
+  --owner=$GITHUB_USER \
+  --repository=$GITHUB_REPO \
+  --path=kubernetes/flux-system \
+  --personal
+- or -
+
+flux bootstrap github \
+  --owner=$GITHUB_OWNER \
+  --repository=$GITHUB_REPO \
+  --branch=main \
+  --path=kubernetes/manifests
+
+
+8. Deploy Backstage:
+
+# Install Backstage CLI
+npm install -g @backstage/cli
+
+# Apply Backstage manifests
+kubectl apply -f ../kubernetes/manifests/backstage/
+
+# Wait for Backstage to be ready
+kubectl rollout status deployment/backstage
+
+# Port-forward to access Backstage
+kubectl port-forward svc/backstage 8080:80
+
+9. Access Backstage and deploy ML models:
+
+- Open your browser and navigate to http://localhost:8080
+- Use the Backstage catalog to browse available ML model templates
+- Deploy a Hugging Face model using the self-service template
+
+Deploying a Model Manually
+You can also deploy a model directly using the provided script:
+
+Common Issues and Troubleshooting
+GPU Availability: Not all GPU types are available in all regions. If you encounter an error about GPU availability, you can:
+
+Change the GPU type in variables.tf
+Change the region/zone to one where your preferred GPU is available
+Deletion Protection: If you have trouble destroying resources with Terraform, ensure deletion_protection = false is set in your GKE cluster configuration.
+
+Authentication Issues: If you encounter authentication problems, ensure:
+
+Your service account has the correct permissions
+You've properly set up impersonation
+Your environment variables are correctly sourced
 
 ### Usage
 
@@ -130,7 +189,3 @@ Data scientists can use the Backstage interface to deploy machine learning model
 ### Contributing
 
 Contributions are welcome! Please submit a pull request or open an issue for any enhancements or bug fixes.
-
-### License
-
-This project is licensed under the MIT License. See the LICENSE file for more information.

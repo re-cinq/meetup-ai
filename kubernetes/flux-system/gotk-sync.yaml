@@ -1,25 +1,26 @@
-apiVersion: source.toolkit.fluxcd.io/v1beta1
+# This file contains the Flux sync configuration
+apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: GitRepository
 metadata:
-  name: gke-gpu-backstage-demo
+  name: flux-system
   namespace: flux-system
 spec:
-  interval: 1m
-  url: https://github.com/your-repo/gke-gpu-backstage-demo
+  interval: 1m0s
   ref:
     branch: main
-
+  url: https://github.com/re-cinq/meetup-ai
+  secretRef:
+    name: flux-system
 ---
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
-  name: gke-gpu-backstage-demo
+  name: flux-system
   namespace: flux-system
 spec:
-  interval: 10m
-  path: "./kubernetes/manifests"
+  interval: 10m0s
+  path: ./kubernetes/manifests
   prune: true
   sourceRef:
     kind: GitRepository
-    name: gke-gpu-backstage-demo
-  targetNamespace: default
+    name: flux-system

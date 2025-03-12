@@ -2,9 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backstage
-  namespace: backstage
+  namespace: default
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: backstage
@@ -14,18 +14,22 @@ spec:
         app: backstage
     spec:
       containers:
-        - name: backstage
-          image: backstage:latest
-          ports:
-            - containerPort: 7007
-          env:
-            - name: APP_CONFIG
-              value: /app-config.yaml
-          volumeMounts:
-            - name: config-volume
-              mountPath: /app-config.yaml
-              subPath: app-config.yaml
+      - name: backstage
+        image: backstage/backstage:latest
+        ports:
+        - containerPort: 7007
+        env:
+        - name: NODE_ENV
+          value: production
+        - name: APP_CONFIG_app_baseUrl
+          value: "http://localhost:7007"
+        - name: APP_CONFIG_backend_baseUrl
+          value: "http://localhost:7007"
+        volumeMounts:
+        - name: app-config
+          mountPath: /app/app-config.yaml
+          subPath: app-config.yaml
       volumes:
-        - name: config-volume
-          configMap:
-            name: backstage-config
+      - name: app-config
+        configMap:
+          name: backstage-config

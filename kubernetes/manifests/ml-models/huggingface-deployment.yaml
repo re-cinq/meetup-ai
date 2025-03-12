@@ -1,36 +1,65 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: huggingface-model
-  namespace: ml-models
+  name: bert-model
+  namespace: default
+  labels:
+    app: bert-model
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: huggingface-model
+      app: bert-model
   template:
     metadata:
       labels:
-        app: huggingface-model
+        app: bert-model
     spec:
       containers:
-      - name: huggingface-container
-        image: huggingface/transformers:latest
-        ports:
-        - containerPort: 80
+      - name: bert-model
+        image: huggingface/transformers-pytorch-gpu:latest
         resources:
-          requests:
-            memory: "2Gi"
-            cpu: "1"
-            nvidia.com/gpu: "1"
           limits:
-            memory: "4Gi"
-            cpu: "2"
-            nvidia.com/gpu: "1"
+            nvidia.com/gpu: 1
+        ports:
+        - containerPort: 8000
         env:
         - name: MODEL_NAME
-          value: "your-model-name"  # Replace with the actual model name
-        - name: MODEL_VERSION
-          value: "latest"  # Replace with the desired model version
+          value: "bert-base-uncased"
+        - name: TRANSFORMERS_CACHE
+          value: "/cache"
+        command: ["/bin/bash", "-c"]
+        args:
+          - |
+            pip install transformers[torch] fastapi uvicorn
+            python -c "
+            from transformers import AutoModel, AutoTokenizer
+            import torch
+            import uvicorn
+            from fastapi import FastAPI, HTTPException
+            import numpy as np
+            
+            app = FastAPI()
+            tokenizer = AutoTokenizer.from_pretrained('$MODEL_NAME')
+            model = AutoModel.from_pretrained('$MODEL_NAME').to('cuda')
+            
+            @app.get('/health')
+            def health():
+                return {'status': 'ok'}
+                
+            @app.post('/predict')
+            def predict(text: str):
+                inputs = tokenizer(text, return_tensors='pt').to('cuda')
+                with torch.no_grad():
+                    outputs = model(**inputs)
+                return {'embeddings': outputs.last_hidden_state[:,0,:].cpu().numpy().tolist()}
+                
+            uvicorn.run(app, host='0.0.0.0', port=8000)
+            "
       nodeSelector:
-        cloud.google.com/gke-accelerator: "nvidia-gpu"  # Ensure the pod is scheduled on GPU nodes
+        gpu-node: "true"
+      tolerations:
+      - key: "nvidia.com/gpu"
+        operator: "Equal"
+        value: "present"
+        effect: "NoSchedule"

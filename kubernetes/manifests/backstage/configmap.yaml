@@ -2,9 +2,44 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: backstage-config
-  namespace: backstage
+  namespace: default
 data:
-  APP_BASE_URL: "http://backstage-service:3000"
-  DATABASE_URL: "postgres://user:password@postgres-service:5432/backstage"
-  # Add other configuration values as needed
-  # For example, you can specify plugins or other settings here
+  app-config.yaml: |
+    app:
+      title: ML Platform
+      baseUrl: http://localhost:7007
+    
+    organization:
+      name: RE-CINQ
+    
+    backend:
+      baseUrl: http://localhost:7007
+      listen:
+        port: 7007
+      cors:
+        origin: http://localhost:7007
+    
+    catalog:
+      import:
+        entityFilename: catalog-info.yaml
+        pullRequestBranchName: backstage-integration
+      rules:
+        - allow: [Component, System, API, Resource, Location]
+    
+    kubernetes:
+      serviceLocatorMethod:
+        type: 'multiTenant'
+      clusterLocatorMethods:
+        - type: 'config'
+          clusters:
+            - url: kubernetes.default.svc
+              name: gke-cluster
+              authProvider: 'serviceAccount'
+              skipTLSVerify: true
+    
+    proxy:
+      '/huggingface':
+        target: 'https://huggingface.co'
+        changeOrigin: true
+        pathRewrite:
+          '^/huggingface': ''

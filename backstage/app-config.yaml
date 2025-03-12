@@ -1,36 +1,46 @@
+app:
+  title: ML Platform
+  baseUrl: http://localhost:3000
+
+organization:
+  name: RE-CINQ
+
 backend:
   baseUrl: http://localhost:7007
+  listen:
+    port: 7007
+  cors:
+    origin: http://localhost:3000
   database:
-    client: pg
-    connection:
-      host: localhost
-      port: 5432
-      user: backstage
-      password: backstage
-      database: backstage
-  integrations:
-    github:
-      - host: github.com
-        token: ${GITHUB_TOKEN}
-    google:
-      projectId: ${GCP_PROJECT_ID}
-      credentials: ${GCP_CREDENTIALS}
-  catalog:
-    locations:
-      - type: url
-        target: https://github.com/your-org/your-repo/blob/main/catalog-info.yaml
-  plugins:
-    techdocs:
-      storage:
-        type: local
-        storagePath: ./techdocs
-    kubernetes:
-      cluster:
-        name: gke-cluster
-        namespace: default
-      service:
-        type: LoadBalancer
-    mlModel:
-      apiUrl: http://ml-model-service.default.svc.cluster.local
-      modelRegistry: huggingface
-      gpuEnabled: true
+    client: better-sqlite3
+    connection: ':memory:'
+
+catalog:
+  import:
+    entityFilename: catalog-info.yaml
+  rules:
+    - allow: [Component, System, API, Resource, Location]
+  locations:
+    - type: url
+      target: https://github.com/your-username/meetup-ai/blob/master/backstage/catalog-info.yaml
+
+kubernetes:
+  serviceLocatorMethod:
+    type: 'multiTenant'
+  clusterLocatorMethods:
+    - type: 'config'
+      clusters:
+        - name: gke-cluster
+          url: https://kubernetes.default.svc
+          authProvider: 'serviceAccount'
+          skipTLSVerify: true
+
+scaffolder:
+  defaultAuthor:
+    name: Backstage
+    email: admin@example.com
+  defaultCommitMessage: "Created from ML Platform template"
+
+auth:
+  environment: development
+  providers: {}

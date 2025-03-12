@@ -1,53 +1,83 @@
-apiVersion: backstage.io/v1beta3
+apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: ml-model-template
-  description: A template for deploying machine learning models to a GKE cluster with GPU support.
+  name: huggingface-model-template
+  title: Hugging Face Model
+  description: Deploy a Hugging Face model to Kubernetes with GPU support
+  tags:
+    - ml
+    - gpu
+    - kubernetes
+    - recommended
 spec:
-  owner: data-scientists
+  owner: data-science
+  type: service
+
   parameters:
-    - title: Model Deployment Parameters
+    - title: Provide Information
       required:
         - modelName
-        - modelImage
-        - gpuCount
+        - modelVersion
+        - namespace
       properties:
         modelName:
-          type: string
           title: Model Name
-          description: The name of the model to be deployed.
-        modelImage:
           type: string
-          title: Model Image
-          description: The Docker image of the model.
+          description: Name of the Hugging Face model
+          ui:field: EntityNamePicker
+        modelVersion:
+          title: Model Version
+          type: string
+          description: Version/tag of the model
+          default: latest
+        namespace:
+          title: Kubernetes Namespace
+          type: string
+          description: Namespace to deploy the model
+          default: default
         gpuCount:
-          type: integer
           title: GPU Count
-          description: The number of GPUs to allocate for the model deployment.
+          type: number
+          description: Number of GPUs to allocate
+          default: 1
+        replicas:
+          title: Replicas
+          type: number
+          description: Number of replicas
+          default: 1
+
   steps:
-    - id: deploy-model
-      name: Deploy Model
-      action: flux:apply
+    - id: template-k8s-manifest
+      name: Create Kubernetes Manifests
+      action: fetch:template
       input:
-        apiVersion: apps/v1
-        kind: Deployment
-        metadata:
-          name: ${parameters.modelName}
-        spec:
-          replicas: 1
-          selector:
-            matchLabels:
-              app: ${parameters.modelName}
-          template:
-            metadata:
-              labels:
-                app: ${parameters.modelName}
-            spec:
-              containers:
-                - name: ${parameters.modelName}
-                  image: ${parameters.modelImage}
-                  resources:
-                    limits:
-                      nvidia.com/gpu: ${parameters.gpuCount}
-                    requests:
-                      nvidia.com/gpu: ${parameters.gpuCount}
+        url: ./manifests
+        values:
+          modelName: ${{ parameters.modelName }}
+          modelVersion: ${{ parameters.modelVersion }}
+          namespace: ${{ parameters.namespace }}
+          gpuCount: ${{ parameters.gpuCount }}
+          replicas: ${{ parameters.replicas }}
+
+    - id: publish-kubernetes
+      name: Publish to Kubernetes
+      action: publish:kubernetes
+      input:
+        manifests:
+          - ${{ steps.template-k8s-manifest.output.manifest }}
+        namespace: ${{ parameters.namespace }}
+
+    - id: register-in-catalog
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish-kubernetes.output.repoContentsUrl }}
+        catalogInfoPath: "/catalog-info.yaml"
+
+  output:
+    links:
+      - title: Model API
+        url: https://${{ parameters.modelName }}.example.com
+      - title: View in Catalog
+        icon: catalog
+        entityRef: ${{ steps.register-in-catalog.output.entityRef }}

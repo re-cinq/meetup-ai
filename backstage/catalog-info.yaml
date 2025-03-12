@@ -1,25 +1,53 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: gke-gpu-backstage-demo
-  description: A demo project for deploying a GKE cluster with GPU access and self-service capabilities for data scientists.
+  name: ml-platform
+  description: ML Platform for deploying Hugging Face models
   tags:
-    - gke
+    - ml
     - gpu
-    - backstage
+    - kubernetes
+  annotations:
+    backstage.io/techdocs-ref: dir:.
 spec:
   type: service
-  lifecycle: production
-  owner: team-data-science
-  providesApis:
-    - apiVersion: v1
-      kind: Service
-      name: backstage-service
-  consumesApis:
-    - apiVersion: v1
-      kind: Deployment
-      name: huggingface-model
-  dependsOn:
-    - apiVersion: v1
-      kind: Cluster
-      name: gke-cluster
+  owner: data-science
+  lifecycle: experimental
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: huggingface-bert-api
+  description: API for accessing the BERT model
+spec:
+  type: openapi
+  lifecycle: experimental
+  owner: data-science
+  definition: |
+    openapi: 3.0.0
+    info:
+      title: BERT Model API
+      version: 1.0.0
+      description: API for the BERT model
+    paths:
+      /predict:
+        post:
+          summary: Get text embeddings
+          requestBody:
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    text:
+                      type: string
+          responses:
+            '200':
+              description: Successful response
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      embeddings:
+                        type: array

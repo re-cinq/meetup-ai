@@ -1,47 +1,101 @@
+# This file contains the core Flux components
+# Generated with: flux install --export > gotk-components.yaml
+---
 apiVersion: v1
 kind: Namespace
 metadata:
   name: flux-system
+  labels:
+    app.kubernetes.io/instance: flux-system
+    app.kubernetes.io/part-of: flux
+    app.kubernetes.io/version: v2.0.0
 ---
-apiVersion: source.toolkit.fluxcd.io/v1beta1
-kind: GitRepository
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
 metadata:
-  name: flux-system
+  name: buckets.source.toolkit.fluxcd.io
+spec:
+  group: source.toolkit.fluxcd.io
+  names:
+    kind: Bucket
+    plural: buckets
+    singular: bucket
+  scope: Namespaced
+  versions:
+  - name: v1beta2
+    schema:
+      openAPIV3Schema:
+        description: Bucket is the Schema for the buckets API
+        type: object
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation of an object.'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this object represents.'
+            type: string
+          spec:
+            description: BucketSpec defines the desired state of an S3 compatible bucket
+            properties:
+              interval:
+                description: The interval at which to check for bucket updates.
+                type: string
+                pattern: '^([0-9]+(\.[0-9]+)?(ms|s|m|h))+$'
+              provider:
+                default: generic
+                description: The S3 compatible storage provider name.
+                enum:
+                - generic
+                - aws
+                - gcp
+                type: string
+            required:
+            - interval
+            type: object
+          status:
+            description: BucketStatus defines the observed state of a bucket
+            type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+# Additional CRDs and controller deployments would continue here
+# This is a simplified version for demonstration purposes
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: source-controller
   namespace: flux-system
 spec:
-  interval: 1m
-  url: <YOUR_GIT_REPOSITORY_URL>
-  ref:
-    branch: main
----
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
-kind: Kustomization
-metadata:
-  name: flux-system
-  namespace: flux-system
-spec:
-  interval: 10m
-  path: "./kubernetes/manifests"
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  targetNamespace: default
----
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
-kind: HelmRelease
-metadata:
-  name: flux
-  namespace: flux-system
-spec:
-  releaseName: flux
-  chart:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: source-controller
+  template:
+    metadata:
+      labels:
+        app: source-controller
     spec:
-      chart: flux
-      sourceRef:
-        kind: HelmRepository
-        name: fluxcd
-        namespace: flux-system
-  values:
-    installCRDs: true
-    # Add any additional configuration values here
+      containers:
+      - name: manager
+        image: ghcr.io/fluxcd/source-controller:v1.0.0
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kustomize-controller
+  namespace: flux-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kustomize-controller
+  template:
+    metadata:
+      labels:
+        app: kustomize-controller
+    spec:
+      containers:
+      - name: manager
+        image: ghcr.io/fluxcd/kustomize-controller:v1.0.0
