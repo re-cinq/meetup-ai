@@ -4,4 +4,4 @@ resources:
 - huggingface-deployment.yaml
 - gpu-resources.yaml
 - service.yaml
-- rbac.yaml
+- nvidia-rbac.yaml
