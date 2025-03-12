@@ -36,6 +36,57 @@ resource "google_container_cluster" "primary" {
   ip_allocation_policy {}
 }
 
+# CPU Node Pool for system components and non-GPU workloads
+resource "google_container_node_pool" "cpu_pool" {
+  name       = "cpu-pool"
+  location   = var.zone
+  cluster    = google_container_cluster.primary.name
+  
+  # Start with 1 node for demo purposes
+  node_count = 1
+
+  management {
+    auto_repair  = true
+    auto_upgrade = true
+  }
+
+  # Use a cost-effective machine type for CPU workloads
+  node_config {
+    machine_type = "e2-standard-2"
+    
+    # Adequate disk for system workloads
+    disk_size_gb = 50
+    disk_type    = "pd-standard"
+
+    # Enable workload identity on nodes
+    workload_metadata_config {
+      mode = "GKE_METADATA"
+    }
+
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/devstorage.read_only",
+      "https://www.googleapis.com/auth/logging.write",
+      "https://www.googleapis.com/auth/monitoring",
+      "https://www.googleapis.com/auth/service.management.readonly",
+      "https://www.googleapis.com/auth/servicecontrol",
+      "https://www.googleapis.com/auth/trace.append",
+      "https://www.googleapis.com/auth/compute",
+    ]
+    
+    # Add labels to identify CPU nodes
+    labels = {
+      "cpu-node" = "true"
+    }
+  }
+
+  # Set timeouts
+  timeouts {
+    create = "30m"
+    update = "30m"
+    delete = "30m"
+  }
+}
+
 resource "google_container_node_pool" "gpu_pool" {
   name       = var.node_pool_name
   location   = var.zone  # Using zone instead of region for GPU compatibility
