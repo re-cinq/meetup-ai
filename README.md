@@ -169,19 +169,6 @@ kubectl port-forward svc/backstage 8080:80
 Deploying a Model Manually
 You can also deploy a model directly using the provided script:
 
-Common Issues and Troubleshooting
-GPU Availability: Not all GPU types are available in all regions. If you encounter an error about GPU availability, you can:
-
-Change the GPU type in variables.tf
-Change the region/zone to one where your preferred GPU is available
-Deletion Protection: If you have trouble destroying resources with Terraform, ensure deletion_protection = false is set in your GKE cluster configuration.
-
-Authentication Issues: If you encounter authentication problems, ensure:
-
-Your service account has the correct permissions
-You've properly set up impersonation
-Your environment variables are correctly sourced
-
 ### Usage
 
 Data scientists can use the Backstage interface to deploy machine learning models from Hugging Face onto the GKE cluster. The provided templates and scripts facilitate self-service deployments.
