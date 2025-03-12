@@ -1,11 +1,55 @@
 apiVersion: v1
+kind: Namespace
+metadata:
+  name: ml-models
+---
+apiVersion: v1
 kind: ResourceQuota
 metadata:
   name: gpu-resources
   namespace: ml-models
 spec:
   hard:
-    requests:
-      nvidia.com/gpu: "2"
-    limits:
-      nvidia.com/gpu: "2"
+    # This is the correct format for GPU resources in ResourceQuota
+    limits.nvidia.com/gpu: "2"
+    requests.nvidia.com/gpu: "2"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bert-model
+  namespace: ml-models
+spec:
+  selector:
+    app: bert-model
+  ports:
+  - port: 80
+    targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: nvidia-device-plugin
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: nvidia-device-plugin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: nvidia-device-plugin
+subjects:
+- kind: ServiceAccount
+  name: nvidia-device-plugin
+  namespace: kube-system
