@@ -106,7 +106,6 @@ gcloud iam service-accounts add-iam-policy-binding \
 
 3. Navigate to the `terraform` directory and initialize Terraform:
    ```
-   source .env
    cd terraform
    terraform init
    ```
