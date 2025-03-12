@@ -1,0 +1,25 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: gke-gpu-backstage-demo
+  description: A demo project for deploying a GKE cluster with GPU access and self-service capabilities for data scientists.
+  tags:
+    - gke
+    - gpu
+    - backstage
+spec:
+  type: service
+  lifecycle: production
+  owner: team-data-science
+  providesApis:
+    - apiVersion: v1
+      kind: Service
+      name: backstage-service
+  consumesApis:
+    - apiVersion: v1
+      kind: Deployment
+      name: huggingface-model
+  dependsOn:
+    - apiVersion: v1
+      kind: Cluster
+      name: gke-cluster

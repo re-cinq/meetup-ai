@@ -1,0 +1,36 @@
+backend:
+  baseUrl: http://localhost:7007
+  database:
+    client: pg
+    connection:
+      host: localhost
+      port: 5432
+      user: backstage
+      password: backstage
+      database: backstage
+  integrations:
+    github:
+      - host: github.com
+        token: ${GITHUB_TOKEN}
+    google:
+      projectId: ${GCP_PROJECT_ID}
+      credentials: ${GCP_CREDENTIALS}
+  catalog:
+    locations:
+      - type: url
+        target: https://github.com/your-org/your-repo/blob/main/catalog-info.yaml
+  plugins:
+    techdocs:
+      storage:
+        type: local
+        storagePath: ./techdocs
+    kubernetes:
+      cluster:
+        name: gke-cluster
+        namespace: default
+      service:
+        type: LoadBalancer
+    mlModel:
+      apiUrl: http://ml-model-service.default.svc.cluster.local
+      modelRegistry: huggingface
+      gpuEnabled: true

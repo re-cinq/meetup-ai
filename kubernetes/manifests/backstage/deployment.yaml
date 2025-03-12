@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backstage
+  namespace: backstage
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backstage
+  template:
+    metadata:
+      labels:
+        app: backstage
+    spec:
+      containers:
+        - name: backstage
+          image: backstage:latest
+          ports:
+            - containerPort: 7007
+          env:
+            - name: APP_CONFIG
+              value: /app-config.yaml
+          volumeMounts:
+            - name: config-volume
+              mountPath: /app-config.yaml
+              subPath: app-config.yaml
+      volumes:
+        - name: config-volume
+          configMap:
+            name: backstage-config

@@ -1,0 +1,53 @@
+apiVersion: backstage.io/v1beta3
+kind: Template
+metadata:
+  name: ml-model-template
+  description: A template for deploying machine learning models to a GKE cluster with GPU support.
+spec:
+  owner: data-scientists
+  parameters:
+    - title: Model Deployment Parameters
+      required:
+        - modelName
+        - modelImage
+        - gpuCount
+      properties:
+        modelName:
+          type: string
+          title: Model Name
+          description: The name of the model to be deployed.
+        modelImage:
+          type: string
+          title: Model Image
+          description: The Docker image of the model.
+        gpuCount:
+          type: integer
+          title: GPU Count
+          description: The number of GPUs to allocate for the model deployment.
+  steps:
+    - id: deploy-model
+      name: Deploy Model
+      action: flux:apply
+      input:
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: ${parameters.modelName}
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: ${parameters.modelName}
+          template:
+            metadata:
+              labels:
+                app: ${parameters.modelName}
+            spec:
+              containers:
+                - name: ${parameters.modelName}
+                  image: ${parameters.modelImage}
+                  resources:
+                    limits:
+                      nvidia.com/gpu: ${parameters.gpuCount}
+                    requests:
+                      nvidia.com/gpu: ${parameters.gpuCount}

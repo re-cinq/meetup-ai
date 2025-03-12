@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: gpu-resources
+  namespace: ml-models
+spec:
+  hard:
+    requests:
+      nvidia.com/gpu: "2"
+    limits:
+      nvidia.com/gpu: "2"

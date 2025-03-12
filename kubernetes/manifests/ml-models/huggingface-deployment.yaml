@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: huggingface-model
+  namespace: ml-models
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: huggingface-model
+  template:
+    metadata:
+      labels:
+        app: huggingface-model
+    spec:
+      containers:
+      - name: huggingface-container
+        image: huggingface/transformers:latest
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1"
+            nvidia.com/gpu: "1"
+          limits:
+            memory: "4Gi"
+            cpu: "2"
+            nvidia.com/gpu: "1"
+        env:
+        - name: MODEL_NAME
+          value: "your-model-name"  # Replace with the actual model name
+        - name: MODEL_VERSION
+          value: "latest"  # Replace with the desired model version
+      nodeSelector:
+        cloud.google.com/gke-accelerator: "nvidia-gpu"  # Ensure the pod is scheduled on GPU nodes
