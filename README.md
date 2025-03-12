@@ -135,7 +135,7 @@ brew install fluxcd/tap/flux
 flux bootstrap github \
   --owner=$GITHUB_USER \
   --repository=$GITHUB_REPO \
-  --path=kubernetes/flux-system \
+  --path=kubernetes \
   --personal
 - or -
 
@@ -143,10 +143,10 @@ flux bootstrap github \
   --owner=$GITHUB_OWNER \
   --repository=$GITHUB_REPO \
   --branch=main \
-  --path=kubernetes/flux-system
+  --path=kubernetes/flux-system \
+  --token-auth
 
-
-8. Deploy Backstage:
+1. Deploy Backstage:
 
 # Install Backstage CLI
 npm install -g @backstage/cli
