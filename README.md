@@ -143,7 +143,7 @@ flux bootstrap github \
   --owner=$GITHUB_OWNER \
   --repository=$GITHUB_REPO \
   --branch=main \
-  --path=kubernetes/flux-system \
+  --path=kubernetes \
   --token-auth
 
 1. Deploy Backstage:
