@@ -143,7 +143,7 @@ flux bootstrap github \
   --owner=$GITHUB_OWNER \
   --repository=$GITHUB_REPO \
   --branch=main \
-  --path=kubernetes/manifests
+  --path=kubernetes/flux-system
 
 
 8. Deploy Backstage:
