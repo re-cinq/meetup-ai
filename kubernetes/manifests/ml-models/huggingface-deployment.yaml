@@ -26,40 +26,40 @@ spec:
         env:
         - name: MODEL_NAME
           value: "bert-base-uncased"
-        - name: TRANSFORMERS_CACHE
-          value: "/cache"
-        command: ["/bin/bash", "-c"]
+        command: ["/bin/bash"]
         args:
+          - "-c"
           - |
-            pip install transformers[torch] fastapi uvicorn
-            python -c "
-            from transformers import AutoModel, AutoTokenizer
+            pip install -q transformers torch datasets fastapi uvicorn
+            # Use python3 instead of python
+            python3 -c "
             import torch
-            import uvicorn
-            from fastapi import FastAPI, HTTPException
-            import numpy as np
+            print('CUDA available:', torch.cuda.is_available())
+            print('CUDA device count:', torch.cuda.device_count())
+            if torch.cuda.is_available():
+                print('CUDA device name:', torch.cuda.get_device_name(0))
             
-            app = FastAPI()
-            tokenizer = AutoTokenizer.from_pretrained('$MODEL_NAME')
-            model = AutoModel.from_pretrained('$MODEL_NAME').to('cuda')
+            from transformers import AutoTokenizer, AutoModel
+            print('Loading tokenizer...')
+            tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased')
+            print('Loading model...')
+            model = AutoModel.from_pretrained('bert-base-uncased')
+            if torch.cuda.is_available():
+                print('Moving model to GPU...')
+                model = model.to('cuda')
             
-            @app.get('/health')
-            def health():
-                return {'status': 'ok'}
-                
-            @app.post('/predict')
-            def predict(text: str):
-                inputs = tokenizer(text, return_tensors='pt').to('cuda')
-                with torch.no_grad():
-                    outputs = model(**inputs)
-                return {'embeddings': outputs.last_hidden_state[:,0,:].cpu().numpy().tolist()}
-                
-            uvicorn.run(app, host='0.0.0.0', port=8000)
+            print('Model loaded successfully!')
+            print('Running on device:', next(model.parameters()).device)
+            
+            # Keep container alive
+            import time
+            while True:
+                print('Model running...', flush=True)
+                time.sleep(60)
             "
       nodeSelector:
         gpu-node: "true"
       tolerations:
       - key: "nvidia.com/gpu"
-        operator: "Equal"
-        value: "present"
+        operator: "Exists"
         effect: "NoSchedule"
