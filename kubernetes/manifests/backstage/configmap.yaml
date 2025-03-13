@@ -16,6 +16,8 @@ data:
       database:
         client: better-sqlite3
         connection: ':memory:'
+      cache:
+        store: memory
 
     techdocs:
       builder: 'local'
@@ -37,8 +39,9 @@ data:
             - name: 'ml-platform'
               url: 'https://kubernetes.default.svc'
               skipTLSVerify: true
+              # Use serviceAccount without specifying token - it will be auto-discovered
               authProvider: 'serviceAccount'
-              serviceAccountToken: ""
+              # Note: serviceAccountToken field is removed entirely
 
     catalog:
       locations:
