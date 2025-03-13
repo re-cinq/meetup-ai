@@ -15,21 +15,24 @@ spec:
     spec:
       containers:
       - name: backstage
-        image: giantswarm/backstage:latest
+        image: europe-west4-docker.pkg.dev/meetup-ai/meetup-ai/backstage:latest
         ports:
         - containerPort: 7007
+        volumeMounts:
+        - name: config
+          mountPath: /app/app-config.custom.yaml
+          subPath: app-config.yaml
         env:
         - name: NODE_ENV
           value: production
-        volumeMounts:
-        - name: backstage-config
-          mountPath: /app/app-config.yaml
-          subPath: app-config.yaml
+        resources:
+          limits:
+            memory: "2Gi"
+            cpu: "1"
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
       volumes:
-      - name: backstage-config
+      - name: config
         configMap:
           name: backstage-config
-      tolerations:
-      - key: "nvidia.com/gpu"
-        operator: "Exists"
-        effect: "NoSchedule"

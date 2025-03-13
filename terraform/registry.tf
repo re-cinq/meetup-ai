@@ -20,7 +20,7 @@ resource "google_artifact_registry_repository" "meetup_ai" {
   
   project       = var.project_id
   location      = var.region
-  repository_id = "meetup_ai"
+  repository_id = "meetup-ai"  # Use hyphens instead of underscores for repository_id
   description   = "Docker repository for ML Platform images"
   format        = "DOCKER"
 
@@ -34,6 +34,7 @@ resource "google_artifact_registry_repository" "meetup_ai" {
 resource "google_artifact_registry_repository_iam_member" "gke_reader" {
   provider = google-beta
   
+  project    = var.project_id
   location   = google_artifact_registry_repository.meetup_ai.location
   repository = google_artifact_registry_repository.meetup_ai.name
   role       = "roles/artifactregistry.reader"

@@ -1,28 +1,25 @@
 app:
   title: ML Platform
-  baseUrl: http://localhost:3000
-
-organization:
-  name: RE-CINQ
+  baseUrl: http://localhost:7007
 
 backend:
   baseUrl: http://localhost:7007
   listen:
     port: 7007
-  cors:
-    origin: http://localhost:3000
   database:
     client: better-sqlite3
     connection: ':memory:'
 
-catalog:
-  import:
-    entityFilename: catalog-info.yaml
-  rules:
-    - allow: [Component, System, API, Resource, Location]
-  locations:
-    - type: url
-      target: https://github.com/your-username/meetup-ai/blob/master/backstage/catalog-info.yaml
+techdocs:
+  builder: 'local'
+  generator:
+    runIn: 'docker'
+  publisher:
+    type: 'local'
+
+grafana:
+  domain: example.com
+  isEnabled: false
 
 kubernetes:
   serviceLocatorMethod:
@@ -30,17 +27,13 @@ kubernetes:
   clusterLocatorMethods:
     - type: 'config'
       clusters:
-        - name: gke-cluster
-          url: https://kubernetes.default.svc
-          authProvider: 'serviceAccount'
+        - name: 'ml-platform'
+          url: 'https://kubernetes.default.svc'
           skipTLSVerify: true
+          authProvider: 'serviceAccount'
+          serviceAccountToken: ""
 
-scaffolder:
-  defaultAuthor:
-    name: Backstage
-    email: admin@example.com
-  defaultCommitMessage: "Created from ML Platform template"
-
-auth:
-  environment: development
-  providers: {}
+catalog:
+  locations:
+    - type: url
+      target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/all.yaml

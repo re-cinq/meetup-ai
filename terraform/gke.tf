@@ -85,9 +85,6 @@ resource "google_container_node_pool" "cpu_pool" {
     update = "30m"
     delete = "30m"
   }
-  lifecycle {
-    prevent_destroy = true
-  }  
 }
 
 resource "google_container_node_pool" "gpu_pool" {
@@ -163,8 +160,5 @@ resource "google_container_node_pool" "gpu_pool" {
     create = "30m"
     update = "30m"
     delete = "30m"
-  }
-  lifecycle {
-    prevent_destroy = true
   }
 }

@@ -7,6 +7,6 @@ spec:
   selector:
     app: backstage
   ports:
-  - port: 7007
+  - port: 80
     targetPort: 7007
-  type: LoadBalancer
+  type: ClusterIP
