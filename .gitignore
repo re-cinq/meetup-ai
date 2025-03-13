@@ -140,5 +140,6 @@ terraform/.terraform.lock.hcl
 terraform/.terraform.tfstate.lock.info
 terraform/.terraform/
 terraform/terraform.tfstate
+terraform/terraform.tfstate.*
 terraform.tfstate.backup
 .sec.env
