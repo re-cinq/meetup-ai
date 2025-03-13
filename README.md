@@ -143,21 +143,11 @@ flux bootstrap github \
   --path=kubernetes \
   --token-auth
 ```
-1. Deploy Backstage:
-
-# Install Backstage CLI
-npm install -g @backstage/cli
-
-# Apply Backstage manifests
-kubectl apply -f ../kubernetes/manifests/backstage/
-
-# Wait for Backstage to be ready
-kubectl rollout status deployment/backstage
 
 # Port-forward to access Backstage
 kubectl port-forward svc/backstage 8080:80
 
-9. Access Backstage and deploy ML models:
+8. Access Backstage and deploy ML models:
 
 - Open your browser and navigate to http://localhost:8080
 - Use the Backstage catalog to browse available ML model templates
