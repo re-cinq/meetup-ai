@@ -7,6 +7,6 @@ spec:
   selector:
     app: backstage
   ports:
-  - port: 80
+  - port: 7007
     targetPort: 7007
   type: LoadBalancer

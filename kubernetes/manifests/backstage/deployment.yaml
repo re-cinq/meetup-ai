@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: backstage
-        image: backstage/backstage:latest
+        image: giantswarm/backstage:latest
         ports:
         - containerPort: 7007
         env:
