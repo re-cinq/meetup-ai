@@ -6,4 +6,5 @@ resources:
 - deployment.yaml
 - service.yaml
 - configmap.yaml
+- backstage-catalog.yaml
 - ingress.yaml

@@ -18,6 +18,11 @@ data:
         connection: ':memory:'
       cache:
         store: memory
+      auth:
+        # Configure authentication to not require login for demo
+        keys:
+          - secret: backstage-demo-key
+        providers: {}
 
     techdocs:
       builder: 'local'
@@ -33,15 +38,49 @@ data:
     # Explicitly set kubernetes config
     kubernetes:
       enabled: false
+      serviceLocatorMethod:
+        type: 'multiTenant'
       clusterLocatorMethods: []
 
     catalog:
+      # Set up anonymous access to the catalog
+      rules:
+        - allow: [read, create, update, delete]
+          resources: [catalog-entity]
       locations:
         - type: url
           target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/all.yaml
+        - type: url
+          target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/acme-corp.yaml
+        - type: url
+          target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/org.yaml
+        - type: file
+          target: /app/catalog/ml-models.yaml
   
-  # Add a production config file that explicitly disables kubernetes
+  # Add a more complete production config file
   app-config.production.yaml: |
+    app:
+      title: ML Platform
+    
+    backend:
+      database:
+        client: better-sqlite3
+        connection: ':memory:'
+      auth:
+        # Allow anonymous access without auth
+        keys:
+          - secret: backstage-demo-key
+    
+    # Complete kubernetes configuration to avoid errors
     kubernetes:
       enabled: false
-      clusterLocatorMethods: []
+      serviceLocatorMethod:
+        type: 'multiTenant'
+      clusterLocatorMethods:
+        - type: 'config'
+          clusters: []
+
+    auth:
+      # Disable authentication for the demo
+      providers: {}
+      environment: development
