@@ -83,6 +83,11 @@ data:
           authHandler: 
             allowGuestAccess: true
     
-    # Disable kubernetes
+    # Complete kubernetes configuration to avoid errors
     kubernetes:
       enabled: false
+      serviceLocatorMethod:
+        type: 'multiTenant'
+      clusterLocatorMethods:
+        - type: 'config'
+          clusters: []
