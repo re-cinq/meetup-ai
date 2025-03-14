@@ -87,6 +87,3 @@ spec:
       - name: catalog-data
         configMap:
           name: backstage-catalog
-      - name: examples
-        configMap:
-          name: backstage-examples
