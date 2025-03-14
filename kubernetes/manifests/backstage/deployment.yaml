@@ -29,7 +29,7 @@ spec:
           subPath: app-config.yaml
         - name: config 
           mountPath: /app/app-config.production.yaml
-          subPath: app-config.yaml
+          subPath: app-config.production.yaml
         env:
         - name: NODE_ENV
           value: production

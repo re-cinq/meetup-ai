@@ -30,20 +30,18 @@ data:
       domain: example.com
       isEnabled: false
 
+    # Explicitly set kubernetes config
     kubernetes:
-      serviceLocatorMethod:
-        type: 'multiTenant'
-      clusterLocatorMethods:
-        - type: 'config'
-          clusters:
-            - name: 'ml-platform'
-              url: 'https://kubernetes.default.svc'
-              skipTLSVerify: true
-              # Use serviceAccount without specifying token - it will be auto-discovered
-              authProvider: 'serviceAccount'
-              # Note: serviceAccountToken field is removed entirely
+      enabled: false
+      clusterLocatorMethods: []
 
     catalog:
       locations:
         - type: url
           target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/all.yaml
+  
+  # Add a production config file that explicitly disables kubernetes
+  app-config.production.yaml: |
+    kubernetes:
+      enabled: false
+      clusterLocatorMethods: []
