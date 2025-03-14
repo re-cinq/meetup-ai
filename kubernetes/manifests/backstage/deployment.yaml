@@ -85,6 +85,15 @@ spec:
           value: "file"
         - name: BACKSTAGE_APP_CONFIG_catalog_locations_3_target
           value: "/app/direct/direct-entity.yaml"
+        # Enable anonymous access to the API
+        - name: BACKSTAGE_APP_CONFIG_auth_allowGuestAccess
+          value: "true"
+        - name: BACKSTAGE_APP_CONFIG_backend_auth_keys
+          value: "temporary-auth-key"
+        - name: BACKSTAGE_APP_CONFIG_backend_auth_allowedHeaders
+          value: "authorization,x-requested-with,x-forwarded-user"
+        - name: BACKSTAGE_APP_CONFIG_backend_auth_skipDefaultsForPath
+          value: "[/api/catalog/locations, /api/catalog/entities]"
         resources:
           limits:
             memory: "1Gi"
