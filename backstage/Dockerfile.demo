@@ -2,155 +2,107 @@ FROM ghcr.io/backstage/backstage:latest
 
 USER root
 
-# Create custom app-config.yaml with authentication bypass
-COPY <<EOF /app/app-config.yaml
-app:
-  title: ML Platform
-  baseUrl: http://localhost:7007
-
-backend:
-  baseUrl: http://localhost:7007
-  listen:
-    port: 7007
-  database:
-    client: better-sqlite3
-    connection: ':memory:'
-  auth:
-    keys:
-      - secret: very-long-secret-used-for-session-encryption-and-jwt-verification
-
-auth:
-  environment: development
-  providers:
-    guest:
-      enabled: true
-      authHandler:
-        allowGuestAccess: true
-
-permission:
-  enabled: false
-
-techdocs:
-  builder: 'local'
-  generator:
-    runIn: 'docker'
-  publisher:
-    type: 'local'
-
-kubernetes:
-  enabled: false
-
-catalog:
-  import:
-    entityFilename: catalog-info.yaml
-    pullRequestBranchName: backstage-integration
-  rules:
-    - allow: [Component, System, API, Resource, Location, Template, Group, User]
-  locations:
-    - type: url
-      target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/all.yaml
-EOF
-
-# Create identical production config
-COPY <<EOF /app/app-config.production.yaml
-app:
-  title: ML Platform
-  baseUrl: http://localhost:7007
-
-backend:
-  baseUrl: http://localhost:7007
-  listen:
-    port: 7007
-  database:
-    client: better-sqlite3
-    connection: ':memory:'
-  auth:
-    keys:
-      - secret: very-long-secret-used-for-session-encryption-and-jwt-verification
-
-auth:
-  environment: development
-  providers:
-    guest:
-      enabled: true
-      authHandler:
-        allowGuestAccess: true
-
-permission:
-  enabled: false
-
-kubernetes:
-  enabled: false
-EOF
-
-# Create catalog directory and add custom entities
+# Create examples directory
 RUN mkdir -p /app/examples
-COPY <<EOF /app/examples/ml-models.yaml
-apiVersion: backstage.io/v1alpha1
-kind: Component
-metadata:
-  name: bert-sentiment-analysis
-  title: BERT Sentiment Analysis
-  description: A pre-trained BERT model for sentiment analysis
-  annotations:
-    backstage.io/techdocs-ref: dir:.
-spec:
-  type: ml-model
-  lifecycle: production
-  owner: guest
----
-apiVersion: backstage.io/v1alpha1
-kind: Component
-metadata:
-  name: stable-diffusion
-  title: Stable Diffusion
-  description: Text-to-image diffusion model
-  annotations:
-    backstage.io/techdocs-ref: dir:.
-spec:
-  type: ml-model
-  lifecycle: production
-  owner: guest
----
-apiVersion: backstage.io/v1alpha1
-kind: Component
-metadata:
-  name: whisper
-  title: Whisper
-  description: Automatic speech recognition model
-  annotations:
-    backstage.io/techdocs-ref: dir:.
-spec:
-  type: ml-model
-  lifecycle: production
-  owner: guest
----
-apiVersion: backstage.io/v1alpha1
-kind: User
-metadata:
-  name: guest
-spec:
-  memberOf: [default-team]
----
-apiVersion: backstage.io/v1alpha1
-kind: Group
-metadata:
-  name: default-team
-spec:
-  type: team
-  children: []
-EOF
 
-# Update catalog config to include our custom entities
-RUN echo "    - type: file" >> /app/app-config.yaml && \
-    echo "      target: /app/examples/ml-models.yaml" >> /app/app-config.yaml && \
-    echo "    - type: file" >> /app/app-config.production.yaml && \
-    echo "      target: /app/examples/ml-models.yaml" >> /app/app-config.production.yaml
+# Create ml-models.yaml file
+RUN echo 'apiVersion: backstage.io/v1alpha1' > /app/examples/ml-models.yaml && \
+    echo 'kind: Component' >> /app/examples/ml-models.yaml && \
+    echo 'metadata:' >> /app/examples/ml-models.yaml && \
+    echo '  name: bert-sentiment-analysis' >> /app/examples/ml-models.yaml && \
+    echo '  title: BERT Sentiment Analysis' >> /app/examples/ml-models.yaml && \
+    echo '  description: A pre-trained BERT model for sentiment analysis' >> /app/examples/ml-models.yaml && \
+    echo 'spec:' >> /app/examples/ml-models.yaml && \
+    echo '  type: ml-model' >> /app/examples/ml-models.yaml && \
+    echo '  lifecycle: production' >> /app/examples/ml-models.yaml && \
+    echo '  owner: guest' >> /app/examples/ml-models.yaml && \
+    echo '---' >> /app/examples/ml-models.yaml && \
+    echo 'apiVersion: backstage.io/v1alpha1' >> /app/examples/ml-models.yaml && \
+    echo 'kind: Component' >> /app/examples/ml-models.yaml && \
+    echo 'metadata:' >> /app/examples/ml-models.yaml && \
+    echo '  name: stable-diffusion' >> /app/examples/ml-models.yaml && \
+    echo '  title: Stable Diffusion' >> /app/examples/ml-models.yaml && \
+    echo '  description: Text-to-image diffusion model' >> /app/examples/ml-models.yaml && \
+    echo 'spec:' >> /app/examples/ml-models.yaml && \
+    echo '  type: ml-model' >> /app/examples/ml-models.yaml && \
+    echo '  lifecycle: production' >> /app/examples/ml-models.yaml && \
+    echo '  owner: guest' >> /app/examples/ml-models.yaml && \
+    echo '---' >> /app/examples/ml-models.yaml && \
+    echo 'apiVersion: backstage.io/v1alpha1' >> /app/examples/ml-models.yaml && \
+    echo 'kind: User' >> /app/examples/ml-models.yaml && \
+    echo 'metadata:' >> /app/examples/ml-models.yaml && \
+    echo '  name: guest' >> /app/examples/ml-models.yaml && \
+    echo 'spec:' >> /app/examples/ml-models.yaml && \
+    echo '  memberOf: [default-team]' >> /app/examples/ml-models.yaml && \
+    echo '---' >> /app/examples/ml-models.yaml && \
+    echo 'apiVersion: backstage.io/v1alpha1' >> /app/examples/ml-models.yaml && \
+    echo 'kind: Group' >> /app/examples/ml-models.yaml && \
+    echo 'metadata:' >> /app/examples/ml-models.yaml && \
+    echo '  name: default-team' >> /app/examples/ml-models.yaml && \
+    echo 'spec:' >> /app/examples/ml-models.yaml && \
+    echo '  type: team' >> /app/examples/ml-models.yaml && \
+    echo '  children: []' >> /app/examples/ml-models.yaml
 
-# Set permissions
+# Create app-config.yaml file
+RUN echo 'app:' > /app/app-config.yaml && \
+    echo '  title: ML Platform Demo' >> /app/app-config.yaml && \
+    echo '  baseUrl: http://localhost:7007' >> /app/app-config.yaml && \
+    echo '' >> /app/app-config.yaml && \
+    echo 'backend:' >> /app/app-config.yaml && \
+    echo '  baseUrl: http://localhost:7007' >> /app/app-config.yaml && \
+    echo '  listen:' >> /app/app-config.yaml && \
+    echo '    port: 7007' >> /app/app-config.yaml && \
+    echo '  database:' >> /app/app-config.yaml && \
+    echo '    client: better-sqlite3' >> /app/app-config.yaml && \
+    echo '    connection: ":memory:"' >> /app/app-config.yaml && \
+    echo '  cache:' >> /app/app-config.yaml && \
+    echo '    store: memory' >> /app/app-config.yaml && \
+    echo '' >> /app/app-config.yaml && \
+    echo 'auth:' >> /app/app-config.yaml && \
+    echo '  environment: development' >> /app/app-config.yaml && \
+    echo '  providers:' >> /app/app-config.yaml && \
+    echo '    guest:' >> /app/app-config.yaml && \
+    echo '      enabled: true' >> /app/app-config.yaml && \
+    echo '      authHandler:' >> /app/app-config.yaml && \
+    echo '        allowGuestAccess: true' >> /app/app-config.yaml && \
+    echo '' >> /app/app-config.yaml && \
+    echo 'permission:' >> /app/app-config.yaml && \
+    echo '  enabled: false' >> /app/app-config.yaml && \
+    echo '' >> /app/app-config.yaml && \
+    echo 'kubernetes:' >> /app/app-config.yaml && \
+    echo '  enabled: false' >> /app/app-config.yaml && \
+    echo '  serviceLocatorMethod:' >> /app/app-config.yaml && \
+    echo '    type: multiTenant' >> /app/app-config.yaml && \
+    echo '  clusterLocatorMethods:' >> /app/app-config.yaml && \
+    echo '    - type: config' >> /app/app-config.yaml && \
+    echo '      clusters: []' >> /app/app-config.yaml && \
+    echo '' >> /app/app-config.yaml && \
+    echo 'catalog:' >> /app/app-config.yaml && \
+    echo '  rules:' >> /app/app-config.yaml && \
+    echo '    - allow: [Component, System, API, Resource, Location, Template, Group, User]' >> /app/app-config.yaml && \
+    echo '  locations:' >> /app/app-config.yaml && \
+    echo '    - type: url' >> /app/app-config.yaml && \
+    echo '      target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/all.yaml' >> /app/app-config.yaml && \
+    echo '    - type: file' >> /app/app-config.yaml && \
+    echo '      target: /app/examples/ml-models.yaml' >> /app/app-config.yaml
+
+# Copy the same config for production
+RUN cp /app/app-config.yaml /app/app-config.production.yaml
+
+# Override the kubernetes plugin with an empty one
+RUN mkdir -p /app/dist-override
+RUN echo 'exports.createBackendPlugin = () => ({ id: "kubernetes", register() { console.log("Kubernetes plugin disabled"); }});' > /app/dist-override/kubernetes-plugin.js
+RUN if [ -f "/app/node_modules/@backstage/plugin-kubernetes-backend/dist/plugin.cjs.js" ]; then \
+      cp /app/dist-override/kubernetes-plugin.js /app/node_modules/@backstage/plugin-kubernetes-backend/dist/plugin.cjs.js; \
+    fi
+
+# Fix permissions
 RUN chown -R node:node /app
 
 USER node
 
-# Start backstage with simplified config
+# Set environment variables
+ENV BACKSTAGE_KUBERNETES_ENABLED=false
+
+# Start with our custom config
 CMD ["node", "packages/backend"]
