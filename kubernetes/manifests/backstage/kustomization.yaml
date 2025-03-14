@@ -11,3 +11,5 @@ resources:
 - backstage-catalog.yaml
 - ingress.yaml
 - direct-entity.yaml
+- additional-examples.yaml
+- template-example.yaml

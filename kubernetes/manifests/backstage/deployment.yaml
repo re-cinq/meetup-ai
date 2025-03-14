@@ -97,6 +97,14 @@ spec:
           mountPath: /app/examples
         - name: direct-entity
           mountPath: /app/direct
+        - name: additional-examples
+          mountPath: /app/examples/entities.yaml
+          subPath: entities.yaml
+        - name: additional-examples
+          mountPath: /app/examples/org.yaml
+          subPath: org.yaml
+        - name: template-example
+          mountPath: /app/examples/template
       volumes:
       - name: catalog-data
         configMap:
@@ -104,3 +112,9 @@ spec:
       - name: direct-entity
         configMap:
           name: direct-entity
+      - name: additional-examples
+        configMap:
+          name: backstage-additional-examples
+      - name: template-example
+        configMap:
+          name: backstage-template-example
