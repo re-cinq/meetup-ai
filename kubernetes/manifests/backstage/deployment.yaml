@@ -81,9 +81,12 @@ spec:
             memory: "512Mi"
             cpu: "250m"
         volumeMounts:
-        - name: examples
+        - name: catalog-data
           mountPath: /app/examples
       volumes:
+      - name: catalog-data
+        configMap:
+          name: backstage-catalog
       - name: examples
         configMap:
           name: backstage-examples
