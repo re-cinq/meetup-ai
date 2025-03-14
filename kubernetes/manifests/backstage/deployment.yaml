@@ -42,6 +42,8 @@ spec:
           value: "better-sqlite3"
         - name: BACKSTAGE_APP_CONFIG_backend_database_connection
           value: ":memory:"
+        - name: BACKSTAGE_APP_CONFIG_backend_database_connection_host
+          value: ""
         # Configure app title
         - name: BACKSTAGE_APP_CONFIG_app_title
           value: "ML Platform"

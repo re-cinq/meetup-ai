@@ -91,3 +91,15 @@ data:
       clusterLocatorMethods:
         - type: 'config'
           clusters: []
+  ml-models.yaml: |
+    apiVersion: backstage.io/v1alpha1
+    kind: Component
+    metadata:
+      name: huggingface-models
+      description: ML Models from Hugging Face
+      annotations:
+        backstage.io/kubernetes-id: huggingface-models
+    spec:
+      type: service
+      owner: data-scientists
+      lifecycle: experimental
