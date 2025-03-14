@@ -35,12 +35,13 @@ spec:
           value: production
         - name: BACKSTAGE_APP_ENV
           value: production
-        - name: POSTGRES_HOST
-          value: ""
-        - name: POSTGRES_USER
-          value: ""
-        - name: POSTGRES_PASSWORD
-          value: ""
+        # Remove PostgreSQL vars and add SQLite vars
+        - name: BACKSTAGE_DATABASE_CLIENT
+          value: "better-sqlite3"
+        - name: BACKSTAGE_DATABASE_CONNECTION
+          value: ":memory:"
+        - name: BACKSTAGE_KUBERNETES_ENABLED
+          value: "false"
         resources:
           limits:
             memory: "1Gi"
