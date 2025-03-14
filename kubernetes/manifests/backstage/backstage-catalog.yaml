@@ -11,6 +11,11 @@ data:
       name: bert-sentiment-analysis
       title: BERT Sentiment Analysis
       description: A pre-trained BERT model for sentiment analysis
+      annotations:
+        backstage.io/managed-by-location: file:/app/examples/ml-models.yaml
+        backstage.io/managed-by-origin-location: file:/app/examples/ml-models.yaml
+        backstage.io/view-url: https://huggingface.co/bert-base-uncased
+        backstage.io/source-location: url:https://github.com/google-research/bert
     spec:
       type: ml-model
       lifecycle: production
@@ -22,6 +27,11 @@ data:
       name: stable-diffusion
       title: Stable Diffusion
       description: Text-to-image diffusion model
+      annotations:
+        backstage.io/managed-by-location: file:/app/examples/ml-models.yaml
+        backstage.io/managed-by-origin-location: file:/app/examples/ml-models.yaml
+        backstage.io/view-url: https://huggingface.co/stabilityai/stable-diffusion-2
+        backstage.io/source-location: url:https://github.com/CompVis/stable-diffusion
     spec:
       type: ml-model
       lifecycle: production
@@ -31,6 +41,9 @@ data:
     kind: User
     metadata:
       name: guest
+      annotations:
+        backstage.io/managed-by-location: file:/app/examples/ml-models.yaml
+        backstage.io/managed-by-origin-location: file:/app/examples/ml-models.yaml
     spec:
       memberOf: [default-team]
     ---
@@ -38,6 +51,9 @@ data:
     kind: Group
     metadata:
       name: default-team
+      annotations:
+        backstage.io/managed-by-location: file:/app/examples/ml-models.yaml
+        backstage.io/managed-by-origin-location: file:/app/examples/ml-models.yaml
     spec:
       type: team
       children: []
