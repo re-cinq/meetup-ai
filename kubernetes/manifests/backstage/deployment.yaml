@@ -30,12 +30,6 @@ spec:
         - name: config 
           mountPath: /app/app-config.production.yaml
           subPath: app-config.production.yaml
-        - name: catalog
-          mountPath: /app/catalog
-          # And under volumes
-        - name: catalog
-          configMap:
-            name: backstage-catalog
         env:
         - name: NODE_ENV
           value: production
@@ -58,3 +52,6 @@ spec:
       - name: config
         configMap:
           name: backstage-config
+      - name: catalog
+        configMap:
+          name: backstage-catalog
