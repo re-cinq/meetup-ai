@@ -1,0 +1,156 @@
+FROM ghcr.io/backstage/backstage:latest
+
+USER root
+
+# Create custom app-config.yaml with authentication bypass
+COPY <<EOF /app/app-config.yaml
+app:
+  title: ML Platform
+  baseUrl: http://localhost:7007
+
+backend:
+  baseUrl: http://localhost:7007
+  listen:
+    port: 7007
+  database:
+    client: better-sqlite3
+    connection: ':memory:'
+  auth:
+    keys:
+      - secret: very-long-secret-used-for-session-encryption-and-jwt-verification
+
+auth:
+  environment: development
+  providers:
+    guest:
+      enabled: true
+      authHandler:
+        allowGuestAccess: true
+
+permission:
+  enabled: false
+
+techdocs:
+  builder: 'local'
+  generator:
+    runIn: 'docker'
+  publisher:
+    type: 'local'
+
+kubernetes:
+  enabled: false
+
+catalog:
+  import:
+    entityFilename: catalog-info.yaml
+    pullRequestBranchName: backstage-integration
+  rules:
+    - allow: [Component, System, API, Resource, Location, Template, Group, User]
+  locations:
+    - type: url
+      target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/all.yaml
+EOF
+
+# Create identical production config
+COPY <<EOF /app/app-config.production.yaml
+app:
+  title: ML Platform
+  baseUrl: http://localhost:7007
+
+backend:
+  baseUrl: http://localhost:7007
+  listen:
+    port: 7007
+  database:
+    client: better-sqlite3
+    connection: ':memory:'
+  auth:
+    keys:
+      - secret: very-long-secret-used-for-session-encryption-and-jwt-verification
+
+auth:
+  environment: development
+  providers:
+    guest:
+      enabled: true
+      authHandler:
+        allowGuestAccess: true
+
+permission:
+  enabled: false
+
+kubernetes:
+  enabled: false
+EOF
+
+# Create catalog directory and add custom entities
+RUN mkdir -p /app/examples
+COPY <<EOF /app/examples/ml-models.yaml
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: bert-sentiment-analysis
+  title: BERT Sentiment Analysis
+  description: A pre-trained BERT model for sentiment analysis
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+spec:
+  type: ml-model
+  lifecycle: production
+  owner: guest
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: stable-diffusion
+  title: Stable Diffusion
+  description: Text-to-image diffusion model
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+spec:
+  type: ml-model
+  lifecycle: production
+  owner: guest
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: whisper
+  title: Whisper
+  description: Automatic speech recognition model
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+spec:
+  type: ml-model
+  lifecycle: production
+  owner: guest
+---
+apiVersion: backstage.io/v1alpha1
+kind: User
+metadata:
+  name: guest
+spec:
+  memberOf: [default-team]
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: default-team
+spec:
+  type: team
+  children: []
+EOF
+
+# Update catalog config to include our custom entities
+RUN echo "    - type: file" >> /app/app-config.yaml && \
+    echo "      target: /app/examples/ml-models.yaml" >> /app/app-config.yaml && \
+    echo "    - type: file" >> /app/app-config.production.yaml && \
+    echo "      target: /app/examples/ml-models.yaml" >> /app/app-config.production.yaml
+
+# Set permissions
+RUN chown -R node:node /app
+
+USER node
+
+# Start backstage with simplified config
+CMD ["node", "packages/backend"]

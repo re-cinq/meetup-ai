@@ -20,36 +20,12 @@ spec:
         effect: "NoSchedule"
       containers:
       - name: backstage
-        image: ghcr.io/backstage/backstage:latest
+        image: europe-west4-docker.pkg.dev/meetup-ai/meetup-ai/backstage-demo:latest
         ports:
         - containerPort: 7007
-        volumeMounts:
-        - name: config
-          mountPath: /app/app-config.yaml
-          subPath: app-config.yaml
-        - name: config 
-          mountPath: /app/app-config.production.yaml
-          subPath: app-config.production.yaml
         env:
         - name: NODE_ENV
           value: production
-        - name: BACKSTAGE_APP_ENV
-          value: production
-        # Database config
-        - name: BACKSTAGE_DATABASE_CLIENT
-          value: "better-sqlite3"
-        - name: BACKSTAGE_DATABASE_CONNECTION
-          value: ":memory:"
-        # Disable Kubernetes
-        - name: BACKSTAGE_KUBERNETES_ENABLED
-          value: "false"
-        # Auth and permissions
-        - name: BACKSTAGE_AUTH_GUEST_ENABLED
-          value: "true"
-        - name: BACKSTAGE_AUTH_GUEST_ALLOW_GUEST_ACCESS
-          value: "true" 
-        - name: BACKSTAGE_PERMISSION_ENABLED
-          value: "false"
         resources:
           limits:
             memory: "1Gi"
@@ -57,10 +33,3 @@ spec:
           requests:
             memory: "512Mi"
             cpu: "250m"
-      volumes:
-      - name: config
-        configMap:
-          name: backstage-config
-      - name: catalog
-        configMap:
-          name: backstage-catalog
