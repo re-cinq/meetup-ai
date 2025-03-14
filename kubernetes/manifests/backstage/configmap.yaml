@@ -66,11 +66,17 @@ data:
       database:
         client: better-sqlite3
         connection: ':memory:'
-      auth:
-        # Allow anonymous access without auth
-        keys:
-          - secret: backstage-demo-key
+    permission:
+      enabled: false
     
+    auth:
+      # Enable guest access for demo purposes
+      providers:
+        guest:
+          enabled: true
+          authHandler: 
+            allowGuestAccess: true
+
     # Complete kubernetes configuration to avoid errors
     kubernetes:
       enabled: false
