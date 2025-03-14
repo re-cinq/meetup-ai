@@ -1,6 +1,6 @@
 app:
   title: ML Platform
-  baseUrl: http://localhost:7007
+  baseUrl: http://localhost:3000
 
 backend:
   baseUrl: http://localhost:7007
@@ -8,7 +8,7 @@ backend:
     port: 7007
   database:
     client: better-sqlite3
-    connection: ':memory:'
+    connection: ':memory:' # Or use a file path for persistence: 'backstage.sqlite3'
 
 techdocs:
   builder: 'local'
@@ -17,9 +17,9 @@ techdocs:
   publisher:
     type: 'local'
 
-grafana:
-  domain: example.com
-  isEnabled: false
+# grafana:
+#   domain: grafana.example.com
+#   isEnabled: true
 
 kubernetes:
   serviceLocatorMethod:
@@ -29,11 +29,13 @@ kubernetes:
       clusters:
         - name: 'ml-platform'
           url: 'https://kubernetes.default.svc'
-          skipTLSVerify: true
+          skipTLSVerify: true # For demo purposes only!
           authProvider: 'serviceAccount'
-          serviceAccountToken: ""
+          serviceAccountToken: "" # For demo purposes only!
 
 catalog:
   locations:
     - type: url
       target: https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/all.yaml
+    - type: file
+      target: ./catalog-info.yaml
