@@ -20,12 +20,43 @@ spec:
         effect: "NoSchedule"
       containers:
       - name: backstage
-        image: europe-west4-docker.pkg.dev/meetup-ai/meetup-ai/backstage-custom:latest
+        image: ghcr.io/backstage/backstage:latest
         ports:
         - containerPort: 7007
         env:
         - name: NODE_ENV
-          value: production
+          value: development
+        # Disable Kubernetes plugin
+        - name: BACKSTAGE_APP_CONFIG_kubernetes_enabled
+          value: "false"
+        # Enable guest authentication
+        - name: BACKSTAGE_APP_CONFIG_auth_providers_guest_enabled
+          value: "true"
+        - name: BACKSTAGE_APP_CONFIG_auth_providers_guest_authHandler_allowGuestAccess
+          value: "true"
+        # Disable permissions
+        - name: BACKSTAGE_APP_CONFIG_permission_enabled
+          value: "false"
+        # Configure SQLite
+        - name: BACKSTAGE_APP_CONFIG_backend_database_client
+          value: "better-sqlite3"
+        - name: BACKSTAGE_APP_CONFIG_backend_database_connection
+          value: ":memory:"
+        # Configure app title
+        - name: BACKSTAGE_APP_CONFIG_app_title
+          value: "ML Platform"
+        # Allow catalog entities
+        - name: BACKSTAGE_APP_CONFIG_catalog_rules_0_allow
+          value: "[Component, System, API, Resource, Location, Template, Group, User]"
+        # Add example catalog location
+        - name: BACKSTAGE_APP_CONFIG_catalog_locations_0_type
+          value: "url"
+        - name: BACKSTAGE_APP_CONFIG_catalog_locations_0_target
+          value: "https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/all.yaml"
+        - name: BACKSTAGE_APP_CONFIG_catalog_locations_1_type
+          value: "url"
+        - name: BACKSTAGE_APP_CONFIG_catalog_locations_1_target
+          value: "https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/acme-corp.yaml"
         resources:
           limits:
             memory: "1Gi"
