@@ -3,6 +3,8 @@ kind: Kustomization
 resources:
 - namespace.yaml
 - rbac.yaml
+- postgres.yaml
+- pg-svc.yaml
 - deployment.yaml
 - service.yaml
 - configmap.yaml
