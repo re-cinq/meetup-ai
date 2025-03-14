@@ -10,3 +10,4 @@ resources:
 - configmap.yaml
 - backstage-catalog.yaml
 - ingress.yaml
+- direct-entity.yaml
