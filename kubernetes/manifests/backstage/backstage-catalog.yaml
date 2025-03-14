@@ -5,6 +5,7 @@ metadata:
   namespace: backstage
 data:
   ml-models.yaml: |
+    # First component
     apiVersion: backstage.io/v1alpha1
     kind: Component
     metadata:
@@ -12,15 +13,16 @@ data:
       title: BERT Sentiment Analysis
       description: A pre-trained BERT model for sentiment analysis
       annotations:
-        backstage.io/managed-by-location: file:/app/examples/ml-models.yaml
-        backstage.io/managed-by-origin-location: file:/app/examples/ml-models.yaml
-        backstage.io/view-url: https://huggingface.co/bert-base-uncased
         backstage.io/source-location: url:https://github.com/google-research/bert
+      tags:
+        - ml-model
+        - transformer
     spec:
-      type: ml-model
+      type: service
       lifecycle: production
       owner: guest
     ---
+    # Second component 
     apiVersion: backstage.io/v1alpha1
     kind: Component
     metadata:
@@ -28,32 +30,28 @@ data:
       title: Stable Diffusion
       description: Text-to-image diffusion model
       annotations:
-        backstage.io/managed-by-location: file:/app/examples/ml-models.yaml
-        backstage.io/managed-by-origin-location: file:/app/examples/ml-models.yaml
-        backstage.io/view-url: https://huggingface.co/stabilityai/stable-diffusion-2
         backstage.io/source-location: url:https://github.com/CompVis/stable-diffusion
+      tags:
+        - ml-model
+        - diffusion
     spec:
-      type: ml-model
+      type: service
       lifecycle: production
       owner: guest
     ---
+    # User entity
     apiVersion: backstage.io/v1alpha1
     kind: User
     metadata:
       name: guest
-      annotations:
-        backstage.io/managed-by-location: file:/app/examples/ml-models.yaml
-        backstage.io/managed-by-origin-location: file:/app/examples/ml-models.yaml
     spec:
       memberOf: [default-team]
     ---
+    # Group entity
     apiVersion: backstage.io/v1alpha1
     kind: Group
     metadata:
       name: default-team
-      annotations:
-        backstage.io/managed-by-location: file:/app/examples/ml-models.yaml
-        backstage.io/managed-by-origin-location: file:/app/examples/ml-models.yaml
     spec:
       type: team
       children: []
