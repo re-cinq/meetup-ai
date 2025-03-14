@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: backstage-catalog
+  name: backstage-examples
   namespace: backstage
 data:
   ml-models.yaml: |
@@ -9,37 +9,35 @@ data:
     kind: Component
     metadata:
       name: bert-sentiment-analysis
-      description: BERT model for sentiment analysis
-      annotations:
-        backstage.io/techdocs-ref: dir:.
+      title: BERT Sentiment Analysis
+      description: A pre-trained BERT model for sentiment analysis
     spec:
       type: ml-model
       lifecycle: production
-      owner: data-science-team
-      system: ml-platform
+      owner: guest
     ---
     apiVersion: backstage.io/v1alpha1
     kind: Component
     metadata:
       name: stable-diffusion
-      description: Stable Diffusion image generation model
-      annotations:
-        backstage.io/techdocs-ref: dir:.
+      title: Stable Diffusion
+      description: Text-to-image diffusion model
     spec:
       type: ml-model
       lifecycle: production
-      owner: data-science-team
-      system: ml-platform
+      owner: guest
     ---
     apiVersion: backstage.io/v1alpha1
-    kind: Component
+    kind: User
     metadata:
-      name: llama-2
-      description: Llama 2 large language model
-      annotations:
-        backstage.io/techdocs-ref: dir:.
+      name: guest
     spec:
-      type: ml-model
-      lifecycle: production
-      owner: data-science-team
-      system: ml-platform
+      memberOf: [default-team]
+    ---
+    apiVersion: backstage.io/v1alpha1
+    kind: Group
+    metadata:
+      name: default-team
+    spec:
+      type: team
+      children: []

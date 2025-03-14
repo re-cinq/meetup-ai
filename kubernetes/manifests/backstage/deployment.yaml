@@ -57,6 +57,10 @@ spec:
           value: "url"
         - name: BACKSTAGE_APP_CONFIG_catalog_locations_1_target
           value: "https://github.com/backstage/backstage/blob/master/packages/catalog-model/examples/acme-corp.yaml"
+        - name: BACKSTAGE_APP_CONFIG_catalog_locations_2_type
+          value: "file"
+        - name: BACKSTAGE_APP_CONFIG_catalog_locations_2_target
+          value: "/app/examples/ml-models.yaml"
         resources:
           limits:
             memory: "1Gi"
@@ -64,3 +68,11 @@ spec:
           requests:
             memory: "512Mi"
             cpu: "250m"
+        volumeMounts:
+        - name: examples
+          mountPath: /app/examples
+      # Add under spec.template.spec
+      volumes:
+      - name: examples
+        configMap:
+          name: backstage-examples
