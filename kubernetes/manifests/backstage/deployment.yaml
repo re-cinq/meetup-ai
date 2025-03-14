@@ -61,9 +61,6 @@ spec:
         # Configure app title
         - name: BACKSTAGE_APP_CONFIG_app_title
           value: "ML Platform"
-        # Allow catalog entities
-        - name: BACKSTAGE_APP_CONFIG_catalog_rules_0_allow
-          value: "[Component, System, API, Resource, Location, Template, Group, User]"
         # Add example catalog location
         - name: BACKSTAGE_APP_CONFIG_catalog_locations_0_type
           value: "url"
