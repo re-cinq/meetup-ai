@@ -7,9 +7,6 @@ resources:
 - pg-svc.yaml
 - deployment.yaml
 - service.yaml
-- configmap.yaml
-- backstage-catalog.yaml
 - ingress.yaml
-- direct-entity.yaml
-- additional-examples.yaml
-- template-example.yaml
+- backstage-entities.yaml
+- backstage-templates.yaml

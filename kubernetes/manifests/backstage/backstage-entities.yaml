@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backstage-entities
+  namespace: backstage
+data:
+  entities.yaml: |
+    apiVersion: backstage.io/v1alpha1
+    kind: Group
+    metadata:
+      name: default-team
+      namespace: development  # Changed from default to development
+      description: Default team
+    spec:
+      type: team
+      children: []
+    ---
+    # User entity
+    apiVersion: backstage.io/v1alpha1
+    kind: User
+    metadata:
+      name: guest
+      namespace: development  # Changed from default to development
+      description: Guest User
+    spec:
+      memberOf: [default-team]
+    ---
+    # Example website
+    apiVersion: backstage.io/v1alpha1
+    kind: Component
+    metadata:
+      name: example-website
+      description: An example website
+      namespace: development  # Changed from default to development
+    spec:
+      type: website
+      lifecycle: production
+      owner: guest
+    ---
+    # Example service
+    apiVersion: backstage.io/v1alpha1
+    kind: Component
+    metadata:
+      name: example-service
+      description: An example service
+      namespace: development  # Changed from default to development
+    spec:
+      type: service
+      lifecycle: production
+      owner: guest
+    ---
+    # ML Model - BERT
+    apiVersion: backstage.io/v1alpha1
+    kind: Component
+    metadata:
+      name: bert-sentiment-analysis
+      description: A pre-trained BERT model for sentiment analysis
+      namespace: development  # Changed from default to development
+      annotations:
+        backstage.io/source-location: url:https://github.com/google-research/bert
+        backstage.io/techdocs-ref: url:https://github.com/google-research/bert
+      tags:
+        - ml-model
+        - transformer
+        - nlp
+    spec:
+      type: service
+      lifecycle: production
+      owner: guest
+    ---
+    # ML Model - Stable Diffusion
+    apiVersion: backstage.io/v1alpha1
+    kind: Component
+    metadata:
+      name: stable-diffusion
+      description: Text-to-image diffusion model
+      namespace: development  # Changed from default to development
+      annotations:
+        backstage.io/source-location: url:https://github.com/CompVis/stable-diffusion
+        backstage.io/techdocs-ref: url:https://github.com/CompVis/stable-diffusion
+      tags:
+        - ml-model
+        - generative-ai
+        - image-generation
+    spec:
+      type: service
+      lifecycle: production
+      owner: guest

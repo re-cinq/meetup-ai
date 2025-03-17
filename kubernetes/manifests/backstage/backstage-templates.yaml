@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backstage-templates
+  namespace: backstage
+data:
+  templates.yaml: |
+    apiVersion: backstage.io/v1alpha1
+    kind: Location
+    metadata:
+      name: ml-model-templates
+      description: Templates for creating ML model deployments
+    spec:
+      type: url
+      targets:
+        - https://github.com/re-cinq/meetup-ai/blob/main/backstage/templates/ml-model-template.yaml
