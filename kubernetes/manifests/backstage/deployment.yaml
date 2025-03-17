@@ -78,7 +78,7 @@ spec:
         - name: BACKSTAGE_APP_CONFIG_catalog_rules_0_allow
           value: "[Component, System, API, Resource, Location, Template, Group, User]"
         - name: BACKSTAGE_APP_CONFIG_catalog_rules_1_allow
-          value: "[ml-model]"
+          value: "/app/catalog-data/ml-models.yaml"
         - name: BACKSTAGE_APP_CONFIG_backend_logging_level  
           value: "debug"
         - name: BACKSTAGE_APP_CONFIG_catalog_locations_3_type
@@ -103,7 +103,7 @@ spec:
             cpu: "250m"
         volumeMounts:
         - name: catalog-data
-          mountPath: /app/examples
+          mountPath: /app/catalog-data
         - name: direct-entity
           mountPath: /app/direct
         - name: additional-examples
