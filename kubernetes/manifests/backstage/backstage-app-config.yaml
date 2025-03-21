@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backstage-app-config
+  namespace: backstage
+data:
+  app-config.yaml: |
+    catalog:
+      rules:
+        - allow: [Component, API, Resource, Location, System, Domain, User, Group]
+          locations:
+            - type: configmap
+              target: backstage/backstage-entities
+              allow:
+                - Group
+                - User
+                - Component
+    
+    # Enable events plugin
+    events:
+      backend:
+        enabled: true
+    # Kubernetes integration
+    kubernetes:
+      serviceLocatorMethod:
+        type: 'multiTenant'
+      clusterLocatorMethods:
+        - type: 'config'
+          clusters:
+            - name: ai-platform-cluster
+              serviceAccountToken: ${K8S_SERVICE_ACCOUNT_TOKEN}
+              url: ${K8S_CLUSTER_URL}
+              skipTLSVerify: false
