@@ -103,9 +103,9 @@ spec:
           mountPath: /var/run/secrets/kubernetes.io/serviceaccount
           readOnly: true
       volumes:
-        - name: backstage-k8s-reader-token
-          secret:
-            secretName: backstage-k8s-reader-token
+      - name: backstage-k8s-reader-token
+        secret:
+          secretName: backstage-k8s-reader-token
       - name: entities
         configMap:
           name: backstage-entities
