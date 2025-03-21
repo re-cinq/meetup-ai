@@ -13,6 +13,7 @@ data:
       description: Default team
     spec:
       type: team
+      parent: 'system' 
       children: []
     ---
     # User entity

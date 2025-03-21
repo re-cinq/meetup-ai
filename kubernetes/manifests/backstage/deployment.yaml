@@ -24,6 +24,13 @@ spec:
         ports:
         - containerPort: 7007
         env:
+        - name: K8S_SERVICE_ACCOUNT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: backstage-k8s-reader-token
+              key: token
+        - name: K8S_CLUSTER_URL
+          value: "https://kubernetes.default.svc.cluster.local"
         - name: NODE_ENV
           value: development
         # Database configuration
@@ -92,7 +99,13 @@ spec:
         - name: templates
           mountPath: /app/examples/templates.yaml
           subPath: templates.yaml
+        - name: backstage-k8s-reader-token
+          mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+          readOnly: true
       volumes:
+        - name: backstage-k8s-reader-token
+          secret:
+            secretName: backstage-k8s-reader-token
       - name: entities
         configMap:
           name: backstage-entities
