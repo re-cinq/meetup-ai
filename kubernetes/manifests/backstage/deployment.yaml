@@ -66,9 +66,14 @@ spec:
           value: "true"
         - name: BACKSTAGE_APP_CONFIG_catalog_providers_file_bootstrapPath
           value: "/app/examples"
+        - name: BACKSTAGE_APP_CONFIG_catalog_rules_allow
+          value: "[Component, System, API, Resource, Location, Template, Group, User]"
         - name: BACKSTAGE_APP_CONFIG_catalog_locations_0_rules_0_allow
           value: "[Component, System, API, Resource, Location, Template, Group, User]"
         - name: BACKSTAGE_APP_CONFIG_catalog_locations_1_rules_0_allow
+          value: "[Component, System, API, Resource, Location, Template, Group, User]"
+        # Added to clearly specify the location rules
+        - name: BACKSTAGE_APP_CONFIG_catalog_rules_allow_0
           value: "[Component, System, API, Resource, Location, Template, Group, User]"
         # Reset database on startup to clear any stale entities
         - name: BACKSTAGE_APP_CONFIG_catalog_database_resetOnStartup
@@ -80,6 +85,13 @@ spec:
           value: "file"
         - name: BACKSTAGE_APP_CONFIG_catalog_locations_1_target
           value: "/app/examples/templates.yaml"
+        # Make sure guest auth is properly enabled
+        - name: BACKSTAGE_APP_CONFIG_auth_environment
+          value: "development"
+        - name: BACKSTAGE_APP_CONFIG_backend_log_level
+          value: "debug"
+        - name: BACKSTAGE_APP_CONFIG_catalog_processingInterval
+          value: "10" # Process catalog items more frequently (seconds)
         resources:
           limits:
             memory: "1Gi"
