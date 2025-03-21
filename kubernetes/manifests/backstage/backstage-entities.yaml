@@ -5,6 +5,18 @@ metadata:
   namespace: backstage
 data:
   entities.yaml: |
+    kind: Location
+    apiVersion: backstage.io/v1alpha1
+    metadata:
+      name: example-entities
+      description: A collection of all Backstage example entities
+    spec:
+      type: url
+      targets:
+        - ./components.yaml
+        - ./systems.yaml
+        - ./apis.yaml
+    ---
     kind: User
     apiVersion: backstage.io/v1alpha1
     metadata:
