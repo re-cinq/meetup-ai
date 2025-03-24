@@ -110,6 +110,8 @@ spec:
           value: "info"
         - name: BACKSTAGE_APP_CONFIG_cache_refreshIntervalSeconds
           value: "5"
+        - name: BACKSTAGE_APP_CONFIG_backend_baseUrl
+          value: "http://backstage.backstage.svc.cluster.local:7007"
         resources:
           limits:
             memory: "1Gi"
