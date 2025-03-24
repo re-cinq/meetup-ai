@@ -14,7 +14,9 @@ data:
               allow:
                 - Group
                 - User
-                - Component
+                - Componen
+            - type: url
+              target: https://github.com/re-cinq/meetup-ai/blob/main/backstage/templates/ml-model-template.yaml
     
     # Enable events plugin
     events:
