@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ml-model-template
+  namespace: backstage
+data:
+  ml-model-template.yaml: |
+    apiVersion: scaffolder.backstage.io/v1beta3
+    kind: Template
+    metadata:
+      name: huggingface-model-template
+      title: Hugging Face Model
+      description: Deploy a Hugging Face model to Kubernetes with GPU support
+      tags:
+        - ml
+        - gpu
+        - kubernetes
+        - recommended
+    spec:
+      owner: data-science
+      type: service
+      parameters:
+        - title: Provide Information
+          required:
+            - modelName
+            - modelVersion
+            - namespace
+          properties:
+            modelName:
+              title: Model Name
+              type: string
+              description: Name of the Hugging Face model
+              ui:field: EntityNamePicker
+            modelVersion:
+              title: Model Version
+              type: string
+              description: Version/tag of the model
+              default: latest
+            namespace:
+              title: Kubernetes Namespace
+              type: string
+              description: Namespace to deploy the model
+              default: default
+            gpuCount:
+              title: GPU Count
+              type: number
+              description: Number of GPUs to allocate
+              default: 1
+            replicas:
+              title: Replicas
+              type: number
+              description: Number of replicas
+              default: 1
+      steps:
+        - id: template-k8s-manifest
+          name: Create Kubernetes Manifests
+          action: fetch:template
+          input:
+            url: ./manifests
+            values:
+              modelName: ${{ parameters.modelName }}
+              modelVersion: ${{ parameters.modelVersion }}
+              namespace: ${{ parameters.namespace }}
+              gpuCount: ${{ parameters.gpuCount }}
+              replicas: ${{ parameters.replicas }}
+        - id: publish-kubernetes
+          name: Publish to Kubernetes
+          action: publish:kubernetes
+          input:
+            manifests:
+              - ${{ steps.template-k8s-manifest.output.manifest }}
+            namespace: ${{ parameters.namespace }}
+        - id: register-in-catalog
+          name: Register in Catalog
+          action: catalog:register
+          input:
+            repoContentsUrl: ${{ steps.publish-kubernetes.output.repoContentsUrl }}
+            catalogInfoPath: "/catalog-info.yaml"
+      output:
+        links:
+          - title: Model API
+            url: https://${{ parameters.modelName }}.example.com
+          - title: View in Catalog
+            icon: catalog
+            entityRef: ${{ steps.register-in-catalog.output.entityRef }}
