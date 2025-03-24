@@ -5,13 +5,20 @@ WORKDIR /app
 # Temporarily switch to root for operations requiring elevated permissions
 USER root
 
+# Create base config with the critical backend.baseUrl setting
+RUN echo 'backend:\n  baseUrl: http://localhost:7007' > /app/app-config.base.yaml
+
 # Install the Kubernetes plugins
 RUN cd packages/backend && yarn add \
     @backstage/plugin-kubernetes \
     @backstage/plugin-kubernetes-backend
 
-# Copy configuration files
+# Copy Kubernetes configuration
 COPY app-config.kubernetes.yaml /app/
+
+# Merge configurations - this ensures the baseUrl setting is included in the final config
+RUN cat /app/app-config.base.yaml > /app/app-config.yaml && \
+    cat /app/app-config.kubernetes.yaml >> /app/app-config.yaml
 
 # Create plugin directories with proper permissions
 RUN mkdir -p /app/packages/backend/dist/plugins && \
@@ -37,4 +44,5 @@ RUN sed -i 's/const app = express()/const app = express();\\nconst kubernetes = 
 
 EXPOSE 7007
 
-CMD ["node", "packages/backend", "--config", "app-config.yaml"]
+# Also modify the CMD to load BOTH config files (fallback in case the mounted config doesn't have baseUrl)
+CMD ["node", "packages/backend", "--config", "app-config.yaml", "--config", "app-config.base.yaml"]
