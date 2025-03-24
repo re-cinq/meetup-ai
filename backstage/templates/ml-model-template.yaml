@@ -1,40 +1,80 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: huggingface-model-template
-  title: Hugging Face Model
-  description: Deploy a Hugging Face model to Kubernetes with GPU support
+  name: llm-deployment-template
+  title: LLM Deployment
+  description: Deploy a Large Language Model (LLM) from Hugging Face to Kubernetes with GPU support
   tags:
+    - llm
     - ml
     - gpu
     - kubernetes
     - recommended
 spec:
-  owner: development/default-team  # Match your existing team
+  owner: development/default-team
   type: service
 
   parameters:
-    - title: Provide Information
+    - title: LLM Configuration
       required:
         - modelName
+        - modelType
         - modelVersion
         - namespace
       properties:
         modelName:
           title: Model Name
           type: string
-          description: Name of the Hugging Face model
+          description: Name of the Hugging Face model (e.g., meta-llama/Llama-2-7b)
           ui:field: EntityNamePicker
+        modelType:
+          title: Model Type
+          type: string
+          description: Type of LLM to deploy
+          enum:
+            - llama
+            - mistral
+            - falcon
+            - mpt
+            - bloom
+            - gpt-neox
+            - bert
+            - other
+          default: llama
         modelVersion:
           title: Model Version
           type: string
           description: Version/tag of the model
           default: latest
+        quantization:
+          title: Quantization
+          type: string
+          description: Quantization method to reduce model size (if applicable)
+          enum:
+            - none
+            - int8
+            - int4
+            - gptq
+            - awq
+          default: none
+    
+    - title: Deployment Configuration
+      properties:
         namespace:
           title: Kubernetes Namespace
           type: string
           description: Namespace to deploy the model
-          default: default
+          default: llm-serving
+        gpuType:
+          title: GPU Type
+          type: string
+          description: Type of GPU to use
+          enum:
+            - nvidia-a100
+            - nvidia-t4
+            - nvidia-v100
+            - none
+          default: nvidia-t4
         gpuCount:
           title: GPU Count
           type: number
@@ -43,38 +83,113 @@ spec:
         replicas:
           title: Replicas
           type: number
-          description: Number of replicas
+          description: Number of model server replicas
           default: 1
+        memoryLimit:
+          title: Memory Limit
+          type: string
+          description: Memory limit for the model (e.g., 32Gi)
+          default: 16Gi
+    
+    - title: Serving Configuration
+      properties:
+        apiType:
+          title: API Type
+          type: string
+          description: Type of API to expose
+          enum:
+            - rest
+            - grpc
+            - websocket
+          default: rest
+        maxConcurrentRequests:
+          title: Max Concurrent Requests
+          type: number
+          description: Maximum number of concurrent requests per instance
+          default: 4
+        enableStreamingResponse:
+          title: Enable Streaming Response
+          type: boolean
+          description: Enable streaming token generation
+          default: true
+        enableModelMonitoring:
+          title: Enable Model Monitoring
+          type: boolean
+          description: Enable Prometheus metrics for model performance
+          default: true
 
   steps:
-    # Start with a simple debug step to ensure it works
     - id: log-start
       name: Log Start
       action: debug:log
       input:
-        message: "Starting deployment of ${{ parameters.modelName }} version ${{ parameters.modelVersion }}"
+        message: "Starting deployment of ${{ parameters.modelType }} model: ${{ parameters.modelName }} version ${{ parameters.modelVersion }}"
 
-    # Fetch template manifests
+    - id: create-namespace
+      name: Create Namespace
+      action: kubernetes:create
+      input:
+        manifest:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: ${{ parameters.namespace }}
+            labels:
+              app.kubernetes.io/part-of: llm-platform
+              backstage.io/managed-by: backstage
+
     - id: template-k8s-manifest
       name: Create Kubernetes Manifests
       action: fetch:template
       input:
-        url: ./manifests
+        url: ./manifests/llm
         values:
           modelName: ${{ parameters.modelName }}
+          modelType: ${{ parameters.modelType }}
           modelVersion: ${{ parameters.modelVersion }}
+          quantization: ${{ parameters.quantization }}
           namespace: ${{ parameters.namespace }}
+          gpuType: ${{ parameters.gpuType }}
           gpuCount: ${{ parameters.gpuCount }}
           replicas: ${{ parameters.replicas }}
+          memoryLimit: ${{ parameters.memoryLimit }}
+          apiType: ${{ parameters.apiType }}
+          maxConcurrentRequests: ${{ parameters.maxConcurrentRequests }}
+          enableStreamingResponse: ${{ parameters.enableStreamingResponse }}
+          enableModelMonitoring: ${{ parameters.enableModelMonitoring }}
 
-    # Publish to Kubernetes
     - id: publish-kubernetes
-      name: Publish to Kubernetes
-      action: debug:log  # Temporarily use debug:log until kubernetes action is confirmed working
+      name: Deploy to Kubernetes
+      action: kubernetes:apply
       input:
-        message: "Would deploy ${{ parameters.modelName }} to namespace ${{ parameters.namespace }} with ${{ parameters.gpuCount }} GPUs"
+        manifestPath: ${{ steps.template-k8s-manifest.output.path }}
+
+    - id: register-model
+      name: Register Model in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.template-k8s-manifest.output.path }}
+        catalogInfoPath: /catalog-info.yaml
+
+    - id: wait-for-deployment
+      name: Wait for Deployment
+      action: kubernetes:wait
+      input:
+        kind: Deployment
+        name: ${{ parameters.modelName | lower }}-deployment
+        namespace: ${{ parameters.namespace }}
+        for: condition=Available
+        timeoutSeconds: 300
 
   output:
     links:
-      - title: Model API
-        url: https://${{ parameters.modelName }}.example.com
+      - title: Model API Endpoint
+        url: https://${{ parameters.modelName | lower }}.${{ parameters.namespace }}.svc.cluster.local
+      - title: API Documentation
+        url: https://${{ parameters.modelName | lower }}.${{ parameters.namespace }}.svc.cluster.local/docs
+      - title: Prometheus Metrics
+        url: https://${{ parameters.modelName | lower }}.${{ parameters.namespace }}.svc.cluster.local/metrics
+      - title: Model Catalog Entry
+        url: /catalog/default/component/${{ parameters.modelName | lower }}
+      - title: Grafana Dashboard
+        url: https://grafana.example.com/d/llm-monitoring?var-model=${{ parameters.modelName | lower }}&var-namespace=${{ parameters.namespace }}
