@@ -159,7 +159,7 @@ kubectl port-forward svc/backstage 8080:80
 - Use the Backstage catalog to browse available ML model templates
 - Deploy a Hugging Face model using the self-service template
 - `https://github.com/backstage/backstage/blob/master/plugins/scaffolder-backend/sample-templates/remote-templates.yaml`
-- 
+- `https://github.com/re-cinq/meetup-ai/blob/main/backstage/templates/ml-model-template.yaml`
 
 Deploying a Model Manually
 You can also deploy a model directly using the provided script:
