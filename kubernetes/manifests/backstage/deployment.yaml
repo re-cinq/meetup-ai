@@ -20,7 +20,7 @@ spec:
         effect: "NoSchedule"
       containers:
       - name: backstage
-        image: gchr.io/backstage/backstage:latest
+        image: ghcr.io/backstage/backstage:latest
         ports:
         - containerPort: 7007
         env:
