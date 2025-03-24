@@ -5,34 +5,27 @@ metadata:
   namespace: backstage
 data:
   entities.yaml: |
-    kind: Location
+    # Don't include the Location entity as it's referencing files that don't exist
+    # and causing URL parsing errors
+    
     apiVersion: backstage.io/v1alpha1
+    kind: Group
     metadata:
-      name: example-entities
-      description: A collection of all Backstage example entities
+      name: default-team
+      description: The Default Team
+      namespace: development
     spec:
-      type: url
-      targets:
-        - ./components.yaml
-        - ./systems.yaml
-        - ./apis.yaml
+      type: team
+      children: []
     ---
-    kind: User
     apiVersion: backstage.io/v1alpha1
+    kind: User
     metadata:
       name: guest
       namespace: development
     spec:
-      memberOf: [default-team]
-    ---
-    kind: Group
-    apiVersion: backstage.io/v1alpha1
-    metadata:
-      name: default-team
-      namespace: development
-    spec:
-      type: team
-      members: [user:development/guest]
+      # Include the namespace in the memberOf reference
+      memberOf: [development/default-team]
     ---
     # Example website
     apiVersion: backstage.io/v1alpha1
@@ -40,11 +33,11 @@ data:
     metadata:
       name: example-website
       description: An example website
-      namespace: development  # Changed from default to development
+      namespace: development
     spec:
       type: website
       lifecycle: production
-      owner: guest
+      owner: development/default-team
     ---
     # Example service
     apiVersion: backstage.io/v1alpha1
@@ -52,11 +45,11 @@ data:
     metadata:
       name: example-service
       description: An example service
-      namespace: development  # Changed from default to development
+      namespace: development
     spec:
       type: service
       lifecycle: production
-      owner: guest
+      owner: development/default-team
     ---
     # ML Model - BERT
     apiVersion: backstage.io/v1alpha1
@@ -64,7 +57,7 @@ data:
     metadata:
       name: bert-sentiment-analysis
       description: A pre-trained BERT model for sentiment analysis
-      namespace: development  # Changed from default to development
+      namespace: development
       annotations:
         backstage.io/source-location: url:https://github.com/google-research/bert
         backstage.io/techdocs-ref: url:https://github.com/google-research/bert
@@ -75,7 +68,7 @@ data:
     spec:
       type: service
       lifecycle: production
-      owner: guest
+      owner: development/default-team
     ---
     # ML Model - Stable Diffusion
     apiVersion: backstage.io/v1alpha1
@@ -83,7 +76,7 @@ data:
     metadata:
       name: stable-diffusion
       description: Text-to-image diffusion model
-      namespace: development  # Changed from default to development
+      namespace: development
       annotations:
         backstage.io/source-location: url:https://github.com/CompVis/stable-diffusion
         backstage.io/techdocs-ref: url:https://github.com/CompVis/stable-diffusion
@@ -94,13 +87,4 @@ data:
     spec:
       type: service
       lifecycle: production
-      owner: guest
-    ---
-    # ML Model Template
-    apiVersion: backstage.io/v1alpha1
-    kind: Template
-    metadata:
-      name: ml-model-template
-    spec:
-      type: template
-      owner: guest
+      owner: development/default-team

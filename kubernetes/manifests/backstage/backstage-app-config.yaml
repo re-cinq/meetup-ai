@@ -19,6 +19,11 @@ data:
           target: /app/templates/ml-model-template.yaml
           rules:
             - allow: [Template]
+        # Add explicit entry for the template in the catalog
+        - type: file
+          target: /app/templates/ml-model-template.yaml
+          rules:
+            - allow: [Template]
 
     # TechDocs configuration (required at root level)
     techdocs:

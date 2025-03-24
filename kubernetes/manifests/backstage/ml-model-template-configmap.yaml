@@ -5,10 +5,12 @@ metadata:
   namespace: backstage
 data:
   ml-model-template.yaml: |
+    # Make sure this apiVersion and kind match what Backstage expects
     apiVersion: scaffolder.backstage.io/v1beta3
     kind: Template
     metadata:
-      name: huggingface-model-template
+      # The name should be distinct from other templates
+      name: ml-model-template
       title: Hugging Face Model
       description: Deploy a Hugging Face model to Kubernetes with GPU support
       tags:
@@ -17,7 +19,7 @@ data:
         - kubernetes
         - recommended
     spec:
-      owner: data-science
+      owner: development/default-team
       type: service
       parameters:
         - title: Provide Information
