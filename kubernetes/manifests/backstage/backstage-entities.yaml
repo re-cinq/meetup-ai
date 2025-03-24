@@ -5,9 +5,7 @@ metadata:
   namespace: backstage
 data:
   entities.yaml: |
-    # Don't include the Location entity as it's referencing files that don't exist
-    # and causing URL parsing errors
-    
+    # MINIMAL TEAM DEFINITION - NO LOCATIONS
     apiVersion: backstage.io/v1alpha1
     kind: Group
     metadata:
@@ -18,13 +16,13 @@ data:
       type: team
       children: []
     ---
+    # Guest user
     apiVersion: backstage.io/v1alpha1
     kind: User
     metadata:
       name: guest
       namespace: development
     spec:
-      # Include the namespace in the memberOf reference
       memberOf: [development/default-team]
     ---
     # Example website

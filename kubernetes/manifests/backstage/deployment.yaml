@@ -90,8 +90,6 @@ spec:
           value: "development"
         - name: BACKSTAGE_APP_CONFIG_backend_log_level
           value: "debug"
-        - name: BACKSTAGE_APP_CONFIG_catalog_processingInterval
-          value: "10" # Process catalog items more frequently (seconds)
         # Add these environment variables after your existing ones
         - name: BACKSTAGE_APP_CONFIG_techdocs_builder
           value: "local"
@@ -104,6 +102,30 @@ spec:
           value: "serviceAccount"
         - name: BACKSTAGE_APP_CONFIG_kubernetes_clusterLocatorMethods_0_clusters_0_skipMetricsLookup
           value: "true"
+        # Add these environment variables
+        - name: BACKSTAGE_APP_CONFIG_catalog_processors_scaffolderTemplateProcessor_enabled
+          value: "true"
+        - name: BACKSTAGE_APP_CONFIG_scaffolder_defaultActions
+          value: "true"
+        # Add these environment variables
+        - name: BACKSTAGE_APP_CONFIG_app_frontend_debugEnabled
+          value: "true"
+        - name: BACKSTAGE_APP_CONFIG_scaffolder_frontend_filterTemplatesOnUserEntities
+          value: "false"
+        - name: BACKSTAGE_APP_CONFIG_catalog_processingInterval_milliseconds
+          value: "10000"
+        # Add these environment variables for extra debug logging
+        - name: BACKSTAGE_APP_CONFIG_backend_log_level
+          value: "debug"
+        - name: BACKSTAGE_APP_CONFIG_scaffolder_log_level
+          value: "debug"
+        - name: BACKSTAGE_APP_CONFIG_catalog_log_level
+          value: "debug"
+        - name: LOG_LEVEL
+          value: "debug"
+        # Add this to force a refresh
+        - name: BACKSTAGE_APP_CONFIG_cache_refreshIntervalSeconds
+          value: "1"
         resources:
           limits:
             memory: "1Gi"
@@ -121,9 +143,9 @@ spec:
         - name: backstage-app-config
           mountPath: /app/app-config.yaml
           subPath: app-config.yaml
-        - name: template-folder
-          mountPath: /app/examples/template/ml-model-template.yaml
-          subPath: ml-model-template.yaml
+        - name: ml-template
+          mountPath: /app/templates/ml-skeleton/template.yaml
+          subPath: template.yaml
       volumes:
       - name: entities
         configMap:
@@ -134,6 +156,6 @@ spec:
       - name: backstage-app-config
         configMap:
           name: backstage-app-config
-      - name: template-folder
+      - name: ml-template
         configMap:
-          name: backstage-template-folder
+          name: ml-skeleton-template

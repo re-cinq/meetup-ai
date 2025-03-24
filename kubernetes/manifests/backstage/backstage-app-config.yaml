@@ -5,21 +5,68 @@ metadata:
   namespace: backstage
 data:
   app-config.yaml: |
+    # Force database reset and reindexing
     catalog:
+      database:
+        resetOnStartup: true
+      processingInterval:
+        milliseconds: 10000
       rules:
         - allow: [Component, API, Resource, Location, System, Domain, User, Group, Template]
-      locations:
-        - type: configmap
-          target: backstage/backstage-entities
-          allow:
-            - Group
-            - User
-            - Component
-        # Only include ONE template location
-        - type: file
-          target: /app/templates/ml-model-template.yaml
-          rules:
-            - allow: [Template]
+      locations: []  # Clear all locations to avoid conflicts
+      processors:
+        scaffolderTemplateProcessor:
+          enabled: true
+
+    # Configure scaffolder with explicit debug mode
+    scaffolder:
+      frontend:
+        filterTemplatesOnUserEntities: false  # DO NOT filter templates based on ownership
+        templateFilter: false  # Show all templates
+      log:
+        level: debug
+      actions:
+        enabled: true
+      defaultActions: true
+      # Registry with FIXED URLs and direct templates ONLY
+      registry:
+        templates:
+          # Only include your direct template for testing
+          - apiVersion: scaffolder.backstage.io/v1beta3
+            kind: Template
+            metadata:
+              name: direct-ml-model
+              title: ML Model Template
+              description: Deploy a machine learning model
+              tags:
+                - recommended
+                - ai
+                - gpu
+            spec:
+              owner: development/default-team
+              type: service
+              parameters:
+                - title: Provide Information
+                  required:
+                    - name
+                  properties:
+                    name:
+                      title: Name
+                      type: string
+                      description: Unique name for the model
+              steps:
+                - id: log
+                  name: Log
+                  action: debug:log
+                  input:
+                    message: Creating ${{ parameters.name }}
+    
+    # App config with debugging enabled
+    app:
+      title: AI Platform
+      baseUrl: http://localhost:3000
+      frontend:
+        debugEnabled: true
     
     # TechDocs configuration (required at root level)
     techdocs:
@@ -47,10 +94,3 @@ data:
               skipTLSVerify: false
               authProvider: 'serviceAccount'
               skipMetricsLookup: true
-    scaffolder:
-      log:
-        level: debug
-      actions:
-        enabled: true
-      # Enable all default actions
-      defaultActions: true

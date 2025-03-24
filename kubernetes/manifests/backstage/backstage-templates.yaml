@@ -5,43 +5,29 @@ metadata:
   namespace: backstage
 data:
   templates.yaml: |
-    # Use a Location entity to reference an embedded template
-    apiVersion: backstage.io/v1alpha1
-    kind: Location
-    metadata:
-      name: ml-templates
-      description: Templates for ML models
-    spec:
-      type: template
-      targets:
-        - ./ml-model-template.yaml
-    ---
-    # Embedded template
+    # Only include working external templates
     apiVersion: scaffolder.backstage.io/v1beta3
     kind: Template
     metadata:
-      name: ml-model-template
-      title: Hugging Face Model
-      description: Deploy a Hugging Face model to Kubernetes with GPU support
+      name: nodejs-template
+      title: Node.js Service
+      description: Create a Node.js service
       tags:
-        - ml
-        - gpu
-        - kubernetes
+        - recommended
+        - node
     spec:
       owner: development/default-team
       type: service
       parameters:
-        - title: Basic Information
-          required:
-            - name
+        - title: Fill in service details
           properties:
             name:
               title: Name
               type: string
-              description: Name for the ML model
+              description: Unique name of the service
       steps:
-        - id: debug
-          name: Debug Step
+        - id: log
+          name: Debug Log
           action: debug:log
           input:
-            message: Template test successful
+            message: Creating service ${{ parameters.name }}
