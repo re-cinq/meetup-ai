@@ -5,20 +5,10 @@ WORKDIR /app
 # Switch to root for privileged operations
 USER root
 
-# Create essential config with backend.baseUrl 
-RUN echo 'backend:\n  baseUrl: http://localhost:7007' > /app/app-config.base.yaml
-
-# Install the Kubernetes plugins with exact versions that are compatible
+# Install the Kubernetes plugins with exact versions
 RUN cd packages/backend && yarn add \
     @backstage/plugin-kubernetes@0.12.5 \
     @backstage/plugin-kubernetes-backend@0.19.4
-
-# Copy Kubernetes configuration
-COPY app-config.kubernetes.yaml /app/
-
-# Merge configurations into app-config.yaml
-RUN cat /app/app-config.base.yaml > /app/app-config.default.yaml && \
-    cat /app/app-config.kubernetes.yaml >> /app/app-config.default.yaml
 
 # Create plugin directories with proper permissions
 RUN mkdir -p /app/packages/backend/dist/plugins && \
@@ -38,21 +28,14 @@ RUN echo "const { createRouter } = require('@backstage/plugin-kubernetes-backend
     echo "  });" >> /app/packages/backend/dist/plugins/kubernetes.js && \
     echo "};" >> /app/packages/backend/dist/plugins/kubernetes.js
 
-# Patch the main backend file to load the plugin
-RUN sed -i 's/const app = express()/const app = express();\\nconst kubernetes = require(".\/plugins\/kubernetes");/' /app/packages/backend/dist/index.cjs.js && \
-    sed -i 's/apiRouter.use("\/proxy"/apiRouter.use("\/kubernetes", await kubernetes(middlewareEnv));\\n  apiRouter.use("\/proxy"/' /app/packages/backend/dist/index.cjs.js
+# Patch the main backend file to load the plugin in a less invasive way
+RUN sed -i '/const app = express/a const kubernetes = require("./plugins/kubernetes");' /app/packages/backend/dist/index.cjs.js && \
+    sed -i '/apiRouter.use.*proxy/i \ \ apiRouter.use("/kubernetes", await kubernetes(middlewareEnv));' /app/packages/backend/dist/index.cjs.js
 
-# Create a startup script to ensure we always have baseUrl
+# Switch back to root for the final command
 USER root
-RUN echo '#!/bin/bash\n\
-if grep -q "backend:" /app/app-config.yaml && ! grep -q "baseUrl:" /app/app-config.yaml; then\n\
-  echo "Adding backend.baseUrl to app-config.yaml"\n\
-  echo "backend:\\n  baseUrl: http://localhost:7007" >> /app/app-config.yaml\n\
-fi\n\
-exec node packages/backend --config app-config.yaml --config app-config.default.yaml\n' > /app/start.sh && \
-chmod +x /app/start.sh
 
 EXPOSE 7007
 
-# Use our startup script instead of calling node directly
-CMD ["/app/start.sh"]
+# Use the standard entry point, don't modify configs
+CMD ["node", "packages/backend", "--config", "app-config.yaml"]
