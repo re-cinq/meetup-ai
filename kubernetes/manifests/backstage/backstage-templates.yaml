@@ -5,6 +5,18 @@ metadata:
   namespace: backstage
 data:
   templates.yaml: |
+    # Use a Location entity to reference an embedded template
+    apiVersion: backstage.io/v1alpha1
+    kind: Location
+    metadata:
+      name: ml-templates
+      description: Templates for ML models
+    spec:
+      type: template
+      targets:
+        - ./ml-model-template.yaml
+    ---
+    # Embedded template
     apiVersion: scaffolder.backstage.io/v1beta3
     kind: Template
     metadata:

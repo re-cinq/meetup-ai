@@ -145,6 +145,9 @@ spec:
         - name: ml-model-template
           mountPath: /app/templates/ml-model-template.yaml
           subPath: ml-model-template.yaml
+        - name: template-folder
+          mountPath: /app/examples/template/ml-model-template.yaml
+          subPath: ml-model-template.yaml
       volumes:
       - name: entities
         configMap:
@@ -158,3 +161,6 @@ spec:
       - name: ml-model-template
         configMap:
           name: ml-model-template
+      - name: template-folder
+        configMap:
+          name: backstage-template-folder

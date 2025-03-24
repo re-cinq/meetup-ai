@@ -3,8 +3,8 @@ kind: Kustomization
 resources:
 - backstage-app-config.yaml
 - backstage-entities.yaml
-- backstage-location.yaml
 - backstage-templates.yaml
+- backstage-template-folder-configmap.yaml
 - deployment.yaml
 - ingress.yaml
 - namespace.yaml
