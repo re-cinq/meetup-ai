@@ -97,6 +97,15 @@ spec:
             secretKeyRef:
               name: backstage-secrets
               key: github-token
+        # Add this as a new environment variable
+        - name: BACKSTAGE_APP_CONFIG_catalog_locations_2_type
+          value: "url"
+        - name: BACKSTAGE_APP_CONFIG_catalog_locations_2_target
+          value: "https://raw.githubusercontent.com/re-cinq/meetup-ai/main/backstage/templates/ml-model-template.yaml"
+        - name: BACKSTAGE_APP_CONFIG_catalog_locations_2_rules_0_allow
+          value: "[Template]"
+        - name: BACKSTAGE_APP_CONFIG_catalog_locations_2_auth_token
+          value: "${GITHUB_TOKEN}"
         resources:
           limits:
             memory: "1Gi"
@@ -112,7 +121,7 @@ spec:
           mountPath: /app/examples/templates.yaml
           subPath: templates.yaml
         - name: backstage-app-config
-          mountPath: /app/config
+          mountPath: /app/app-config.yaml
           subPath: app-config.yaml
       volumes:
       - name: entities

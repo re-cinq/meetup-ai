@@ -118,8 +118,13 @@ gcloud iam service-accounts add-iam-policy-binding \
 
 6. Once the cluster is up and running, navigate to the `kubernetes/flux-system` directory and apply the Flux configurations:
 `gcloud container clusters get-credentials ai-platform-cluster`
-
-7. Install Flux on the cluster:
+```
+# Run this to get access to GitHub for Backstage
+kubectl create secret generic backstage-secrets \
+  --namespace backstage \
+  --from-literal=github-token=YOUR_GITHUB_PAT_HERE
+```
+7. Run Flux on the cluster:
 
 # Bootstrap Flux (replace with your Git repository)
 ```bash
