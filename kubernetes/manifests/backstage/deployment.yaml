@@ -20,7 +20,7 @@ spec:
         effect: "NoSchedule"
       containers:
       - name: backstage
-        image: ghcr.io/backstage/backstage:latest
+        image: europe-west4-docker.pkg.dev/meetup-ai/meetup-ai/backstage-custom:latest
         ports:
         - containerPort: 7007
         env:
