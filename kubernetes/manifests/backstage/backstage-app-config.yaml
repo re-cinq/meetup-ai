@@ -8,15 +8,16 @@ data:
     # Force database reset and reindexing
     catalog:
       database:
-        resetOnStartup: true
+        resetOnStartup: true  # Make sure this is enabled
       processingInterval:
-        milliseconds: 10000
+        milliseconds: 1000  # Process more frequently
       rules:
         - allow: [Component, API, Resource, Location, System, Domain, User, Group, Template]
-      locations: []  # Clear all locations to avoid conflicts
-      processors:
-        scaffolderTemplateProcessor:
-          enabled: true
+      locations:
+        - type: url
+          target: https://github.com/re-cinq/meetup-ai/blob/main/backstage/templates/ml-model-template.yaml
+          rules:
+            - allow: [Template]
 
     # Configure scaffolder with explicit debug mode
     scaffolder:
@@ -60,6 +61,19 @@ data:
                   action: debug:log
                   input:
                     message: Creating ${{ parameters.name }}
+          - apiVersion: scaffolder.backstage.io/v1beta3
+            kind: Template
+            metadata:
+              name: simple-test-template
+              title: Test Template
+              description: Simple test template
+            spec:
+              steps:
+                - id: log
+                  name: Log
+                  action: debug:log
+                  input:
+                    message: "Test message"
     
     # App config with debugging enabled
     app:
@@ -67,6 +81,17 @@ data:
       baseUrl: http://localhost:3000
       frontend:
         debugEnabled: true
+
+    # Add this authentication configuration to the app-config.yaml
+    auth:
+      environment: development
+      providers: 
+        guest:
+          enabled: true
+      # Disable token verification in development
+      keys:
+        development:
+          skipKeyStoreCheck: true
     
     # TechDocs configuration (required at root level)
     techdocs:

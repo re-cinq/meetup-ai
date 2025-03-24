@@ -28,7 +28,6 @@ spec:
           value: "https://kubernetes.default.svc.cluster.local"
         - name: NODE_ENV
           value: development
-        # Database configuration
         - name: POSTGRES_HOST
           value: "backstage-postgres"
         - name: POSTGRES_PORT
@@ -49,15 +48,12 @@ spec:
           value: "backstage"
         - name: BACKSTAGE_APP_CONFIG_backend_database_connection_database
           value: "backstage"
-        # Auth configuration
         - name: BACKSTAGE_APP_CONFIG_auth_providers_guest_enabled
           value: "true"
         - name: BACKSTAGE_APP_CONFIG_auth_allowGuestAccess
           value: "true"
-        # App configuration
         - name: BACKSTAGE_APP_CONFIG_app_title
           value: "ML Platform"
-        # Catalog configuration - SIMPLIFIED
         - name: BACKSTAGE_APP_CONFIG_catalog_locations_0_type
           value: "file"
         - name: BACKSTAGE_APP_CONFIG_catalog_locations_0_target
@@ -72,60 +68,48 @@ spec:
           value: "[Component, System, API, Resource, Location, Template, Group, User]"
         - name: BACKSTAGE_APP_CONFIG_catalog_locations_1_rules_0_allow
           value: "[Component, System, API, Resource, Location, Template, Group, User]"
-        # Added to clearly specify the location rules
         - name: BACKSTAGE_APP_CONFIG_catalog_rules_allow_0
           value: "[Component, System, API, Resource, Location, Template, Group, User]"
-        # Reset database on startup to clear any stale entities
         - name: BACKSTAGE_APP_CONFIG_catalog_database_resetOnStartup
           value: "true"
-        # Debug options
         - name: BACKSTAGE_APP_CONFIG_backend_logging_level
-          value: "debug"
+          value: "info"
         - name: BACKSTAGE_APP_CONFIG_catalog_locations_1_type
-          value: "file"
+          value: "url"
         - name: BACKSTAGE_APP_CONFIG_catalog_locations_1_target
-          value: "/app/examples/templates.yaml"
-        # Make sure guest auth is properly enabled
+          value: "https://github.com/re-cinq/meetup-ai/blob/main/backstage/templates/ml-model-template.yaml"
         - name: BACKSTAGE_APP_CONFIG_auth_environment
           value: "development"
         - name: BACKSTAGE_APP_CONFIG_backend_log_level
-          value: "debug"
-        # Add these environment variables after your existing ones
+          value: "info"
         - name: BACKSTAGE_APP_CONFIG_techdocs_builder
           value: "local"
         - name: BACKSTAGE_APP_CONFIG_techdocs_generator_runIn
           value: "docker"
         - name: BACKSTAGE_APP_CONFIG_techdocs_publisher_type
           value: "local"
-        # Fix the Kubernetes auth provider
         - name: BACKSTAGE_APP_CONFIG_kubernetes_clusterLocatorMethods_0_clusters_0_authProvider
           value: "serviceAccount"
         - name: BACKSTAGE_APP_CONFIG_kubernetes_clusterLocatorMethods_0_clusters_0_skipMetricsLookup
           value: "true"
-        # Add these environment variables
         - name: BACKSTAGE_APP_CONFIG_catalog_processors_scaffolderTemplateProcessor_enabled
           value: "true"
         - name: BACKSTAGE_APP_CONFIG_scaffolder_defaultActions
           value: "true"
-        # Add these environment variables
         - name: BACKSTAGE_APP_CONFIG_app_frontend_debugEnabled
-          value: "true"
+          value: "false"
         - name: BACKSTAGE_APP_CONFIG_scaffolder_frontend_filterTemplatesOnUserEntities
           value: "false"
         - name: BACKSTAGE_APP_CONFIG_catalog_processingInterval_milliseconds
           value: "10000"
-        # Add these environment variables for extra debug logging
-        - name: BACKSTAGE_APP_CONFIG_backend_log_level
-          value: "debug"
         - name: BACKSTAGE_APP_CONFIG_scaffolder_log_level
-          value: "debug"
+          value: "info"
         - name: BACKSTAGE_APP_CONFIG_catalog_log_level
-          value: "debug"
+          value: "info"
         - name: LOG_LEVEL
-          value: "debug"
-        # Add this to force a refresh
+          value: "info"
         - name: BACKSTAGE_APP_CONFIG_cache_refreshIntervalSeconds
-          value: "1"
+          value: "5"
         resources:
           limits:
             memory: "1Gi"
@@ -143,9 +127,6 @@ spec:
         - name: backstage-app-config
           mountPath: /app/app-config.yaml
           subPath: app-config.yaml
-        - name: ml-template
-          mountPath: /app/templates/ml-skeleton/template.yaml
-          subPath: template.yaml
       volumes:
       - name: entities
         configMap:
@@ -156,6 +137,3 @@ spec:
       - name: backstage-app-config
         configMap:
           name: backstage-app-config
-      - name: ml-template
-        configMap:
-          name: ml-skeleton-template

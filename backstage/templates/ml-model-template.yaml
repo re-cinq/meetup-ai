@@ -10,7 +10,7 @@ metadata:
     - kubernetes
     - recommended
 spec:
-  owner: data-science
+  owner: development/default-team  # Match your existing team
   type: service
 
   parameters:
@@ -47,6 +47,14 @@ spec:
           default: 1
 
   steps:
+    # Start with a simple debug step to ensure it works
+    - id: log-start
+      name: Log Start
+      action: debug:log
+      input:
+        message: "Starting deployment of ${{ parameters.modelName }} version ${{ parameters.modelVersion }}"
+
+    # Fetch template manifests
     - id: template-k8s-manifest
       name: Create Kubernetes Manifests
       action: fetch:template
@@ -59,25 +67,14 @@ spec:
           gpuCount: ${{ parameters.gpuCount }}
           replicas: ${{ parameters.replicas }}
 
+    # Publish to Kubernetes
     - id: publish-kubernetes
       name: Publish to Kubernetes
-      action: publish:kubernetes
+      action: debug:log  # Temporarily use debug:log until kubernetes action is confirmed working
       input:
-        manifests:
-          - ${{ steps.template-k8s-manifest.output.manifest }}
-        namespace: ${{ parameters.namespace }}
-
-    - id: register-in-catalog
-      name: Register in Catalog
-      action: catalog:register
-      input:
-        repoContentsUrl: ${{ steps.publish-kubernetes.output.repoContentsUrl }}
-        catalogInfoPath: "/catalog-info.yaml"
+        message: "Would deploy ${{ parameters.modelName }} to namespace ${{ parameters.namespace }} with ${{ parameters.gpuCount }} GPUs"
 
   output:
     links:
       - title: Model API
         url: https://${{ parameters.modelName }}.example.com
-      - title: View in Catalog
-        icon: catalog
-        entityRef: ${{ steps.register-in-catalog.output.entityRef }}
