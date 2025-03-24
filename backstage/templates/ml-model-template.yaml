@@ -2,7 +2,7 @@ apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
   name: llm-deployment-template
-  title: LLM Deployment
+  title: LLM Deployments
   description: Deploy a Large Language Model (LLM) from Hugging Face to Kubernetes with GPU support
   tags:
     - llm
