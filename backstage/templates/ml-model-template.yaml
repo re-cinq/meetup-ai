@@ -128,9 +128,9 @@ spec:
 
     - id: create-namespace
       name: Create Namespace
-      action: kubernetes:create
+      action: kubernetes:apply
       input:
-        manifest:
+        manifest: |
           apiVersion: v1
           kind: Namespace
           metadata:
