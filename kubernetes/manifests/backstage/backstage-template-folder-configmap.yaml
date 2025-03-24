@@ -4,12 +4,12 @@ metadata:
   name: backstage-template-folder
   namespace: backstage
 data:
-  "ml-model-template.yaml": |
+  ml-model-template.yaml: |
     apiVersion: scaffolder.backstage.io/v1beta3
     kind: Template
     metadata:
-      name: ml-model-template
-      title: Hugging Face Model
+      name: huggingface-model
+      title: Hugging Face ML Model
       description: Deploy a Hugging Face model to Kubernetes with GPU support
       tags:
         - ml
