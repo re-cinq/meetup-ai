@@ -95,3 +95,12 @@ data:
       type: service
       lifecycle: production
       owner: guest
+    ---
+    # ML Model Template
+    apiVersion: backstage.io/v1alpha1
+    kind: Template
+    metadata:
+      name: ml-model-template
+    spec:
+      type: template
+      owner: guest

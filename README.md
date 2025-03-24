@@ -122,15 +122,21 @@ gcloud iam service-accounts add-iam-policy-binding \
 7. Install Flux on the cluster:
 
 # Bootstrap Flux (replace with your Git repository)
-```
+```bash
+# For personal GitHub accounts:
+export GITHUB_USER=<your-github-username>
+export GITHUB_REPO=<your-github-repo>
+
 flux bootstrap github \
   --owner=$GITHUB_USER \
   --repository=$GITHUB_REPO \
   --path=kubernetes \
   --personal
-```
---- or ----
-```
+
+# OR for organization GitHub accounts:
+export GITHUB_OWNER=<your-org-name>
+export GITHUB_REPO=<your-github-repo>
+
 flux bootstrap github \
   --owner=$GITHUB_OWNER \
   --repository=$GITHUB_REPO \
@@ -151,10 +157,22 @@ kubectl port-forward svc/backstage 8080:80
 Deploying a Model Manually
 You can also deploy a model directly using the provided script:
 
-### Usage
+## Usage Examples
 
-Data scientists can use the Backstage interface to deploy machine learning models from Hugging Face onto the GKE cluster. The provided templates and scripts facilitate self-service deployments.
+Here are some example Hugging Face models you can deploy:
 
+- Text generation: `gpt2`
+- Image classification: `google/vit-base-patch16-224`
+- Speech recognition: `facebook/wav2vec2-base-960h`
+
+## Clean Up
+
+To avoid incurring charges, remove all resources when you're done:
+
+```bash
+cd terraform
+terraform destroy
+```
 ### Contributing
 
 Contributions are welcome! Please submit a pull request or open an issue for any enhancements or bug fixes.

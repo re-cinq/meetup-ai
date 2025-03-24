@@ -7,7 +7,7 @@ data:
   app-config.yaml: |
     catalog:
       rules:
-        - allow: [Component, API, Resource, Location, System, Domain, User, Group]
+        - allow: [Component, API, Resource, Location, System, Domain, User, Group, Template]
           locations:
             - type: configmap
               target: backstage/backstage-entities
