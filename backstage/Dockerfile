@@ -5,6 +5,21 @@ WORKDIR /app
 # Switch to root for privileged operations
 USER root
 
+# Create a startup wrapper script that ensures backend.baseUrl is present
+RUN echo '#!/bin/bash\n\
+# Check if the app-config.yaml file exists and contains backend.baseUrl\n\
+if [ -f /app/app-config.yaml ] && ! grep -q "backend:" /app/app-config.yaml; then\n\
+  echo "Adding backend.baseUrl to app-config.yaml"\n\
+  echo "backend:\\n  baseUrl: http://localhost:7007" >> /app/app-config.yaml\n\
+elif [ -f /app/app-config.yaml ] && grep -q "backend:" /app/app-config.yaml && ! grep -q "baseUrl:" /app/app-config.yaml; then\n\
+  echo "Adding baseUrl under existing backend section"\n\
+  sed -i "/backend:/a\\  baseUrl: http://localhost:7007" /app/app-config.yaml\n\
+fi\n\
+\n\
+# Run the original command\n\
+exec node packages/backend --config app-config.yaml\n\
+' > /app/start.sh && chmod +x /app/start.sh
+
 # Install the Kubernetes plugins with exact versions
 RUN cd packages/backend && yarn add \
     @backstage/plugin-kubernetes@0.12.5 \
@@ -37,5 +52,5 @@ USER root
 
 EXPOSE 7007
 
-# Use the standard entry point, don't modify configs
-CMD ["node", "packages/backend", "--config", "app-config.yaml"]
+# Use our wrapper script instead of the standard entry point
+CMD ["/app/start.sh"]
