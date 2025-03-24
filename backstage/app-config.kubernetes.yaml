@@ -1,0 +1,12 @@
+kubernetes:
+  serviceLocatorMethod:
+    type: 'multiTenant'
+  clusterLocatorMethods:
+    - type: 'config'
+      clusters:
+        - name: ai-platform-cluster  # Your cluster name
+          url: ${K8S_CLUSTER_URL}  # Environment variable at runtime
+          authProvider: 'serviceAccount'
+          skipTLSVerify: false
+          skipMetricsLookup: true
+          token: file:///var/run/secrets/kubernetes.io/serviceaccount/token
