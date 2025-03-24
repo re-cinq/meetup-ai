@@ -92,6 +92,11 @@ spec:
           value: "debug"
         - name: BACKSTAGE_APP_CONFIG_catalog_processingInterval
           value: "10" # Process catalog items more frequently (seconds)
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: backstage-secrets
+              key: github-token
         resources:
           limits:
             memory: "1Gi"

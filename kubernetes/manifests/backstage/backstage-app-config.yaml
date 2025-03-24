@@ -17,6 +17,8 @@ data:
                 - Component
             - type: url
               target: https://raw.githubusercontent.com/re-cinq/meetup-ai/main/backstage/templates/ml-model-template.yaml
+              auth:
+                token: ${GITHUB_TOKEN}
     
     # Enable events plugin
     events:
