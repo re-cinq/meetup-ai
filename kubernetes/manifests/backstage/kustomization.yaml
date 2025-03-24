@@ -5,6 +5,7 @@ resources:
 - backstage-entities.yaml
 - backstage-location.yaml
 - backstage-templates.yaml
+- ml-model-template-configmap.yaml
 - deployment.yaml
 - ingress.yaml
 - namespace.yaml
