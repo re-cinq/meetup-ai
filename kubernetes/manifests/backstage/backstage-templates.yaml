@@ -5,12 +5,31 @@ metadata:
   namespace: backstage
 data:
   templates.yaml: |
-    apiVersion: backstage.io/v1alpha1
-    kind: Location
+    apiVersion: scaffolder.backstage.io/v1beta3
+    kind: Template
     metadata:
-      name: ml-model-templates
-      description: Templates for creating ML model deployments
+      name: ml-model-template
+      title: Hugging Face Model
+      description: Deploy a Hugging Face model to Kubernetes with GPU support
+      tags:
+        - ml
+        - gpu
+        - kubernetes
     spec:
-      type: url
-      targets:
-        - https://github.com/re-cinq/meetup-ai/blob/main/backstage/templates/ml-model-template.yaml
+      owner: development/default-team
+      type: service
+      parameters:
+        - title: Basic Information
+          required:
+            - name
+          properties:
+            name:
+              title: Name
+              type: string
+              description: Name for the ML model
+      steps:
+        - id: debug
+          name: Debug Step
+          action: debug:log
+          input:
+            message: Template test successful

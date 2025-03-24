@@ -15,16 +15,12 @@ data:
             - Group
             - User
             - Component
+        # Only include ONE template location
         - type: file
           target: /app/templates/ml-model-template.yaml
           rules:
             - allow: [Template]
-        # Add explicit entry for the template in the catalog
-        - type: file
-          target: /app/templates/ml-model-template.yaml
-          rules:
-            - allow: [Template]
-
+    
     # TechDocs configuration (required at root level)
     techdocs:
       builder: local
@@ -51,3 +47,10 @@ data:
               skipTLSVerify: false
               authProvider: 'serviceAccount'
               skipMetricsLookup: true
+    scaffolder:
+      log:
+        level: debug
+      actions:
+        enabled: true
+      # Enable all default actions
+      defaultActions: true

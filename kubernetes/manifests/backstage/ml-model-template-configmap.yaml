@@ -5,83 +5,31 @@ metadata:
   namespace: backstage
 data:
   ml-model-template.yaml: |
-    # Make sure this apiVersion and kind match what Backstage expects
     apiVersion: scaffolder.backstage.io/v1beta3
     kind: Template
     metadata:
-      # The name should be distinct from other templates
       name: ml-model-template
-      title: Hugging Face Model
+      title: Hugging Face Model (Debug)
       description: Deploy a Hugging Face model to Kubernetes with GPU support
       tags:
         - ml
         - gpu
-        - kubernetes
-        - recommended
+        - debug
     spec:
       owner: development/default-team
       type: service
       parameters:
-        - title: Provide Information
+        - title: Basic Information
           required:
-            - modelName
-            - modelVersion
-            - namespace
+            - name
           properties:
-            modelName:
-              title: Model Name
+            name:
+              title: Name
               type: string
-              description: Name of the Hugging Face model
-              ui:field: EntityNamePicker
-            modelVersion:
-              title: Model Version
-              type: string
-              description: Version/tag of the model
-              default: latest
-            namespace:
-              title: Kubernetes Namespace
-              type: string
-              description: Namespace to deploy the model
-              default: default
-            gpuCount:
-              title: GPU Count
-              type: number
-              description: Number of GPUs to allocate
-              default: 1
-            replicas:
-              title: Replicas
-              type: number
-              description: Number of replicas
-              default: 1
+              description: Name for the ML model
       steps:
-        - id: template-k8s-manifest
-          name: Create Kubernetes Manifests
-          action: fetch:template
+        - id: debug
+          name: Debug Step
+          action: debug:log
           input:
-            url: ./manifests
-            values:
-              modelName: ${{ parameters.modelName }}
-              modelVersion: ${{ parameters.modelVersion }}
-              namespace: ${{ parameters.namespace }}
-              gpuCount: ${{ parameters.gpuCount }}
-              replicas: ${{ parameters.replicas }}
-        - id: publish-kubernetes
-          name: Publish to Kubernetes
-          action: publish:kubernetes
-          input:
-            manifests:
-              - ${{ steps.template-k8s-manifest.output.manifest }}
-            namespace: ${{ parameters.namespace }}
-        - id: register-in-catalog
-          name: Register in Catalog
-          action: catalog:register
-          input:
-            repoContentsUrl: ${{ steps.publish-kubernetes.output.repoContentsUrl }}
-            catalogInfoPath: "/catalog-info.yaml"
-      output:
-        links:
-          - title: Model API
-            url: https://${{ parameters.modelName }}.example.com
-          - title: View in Catalog
-            icon: catalog
-            entityRef: ${{ steps.register-in-catalog.output.entityRef }}
+            message: Template test successful
