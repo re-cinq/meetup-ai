@@ -4,9 +4,8 @@ kubernetes:
   clusterLocatorMethods:
     - type: 'config'
       clusters:
-        - name: ai-platform-cluster  # Your cluster name
-          url: ${K8S_CLUSTER_URL}  # Environment variable at runtime
+        - url: https://kubernetes.default.svc.cluster.local
+          name: in-cluster
           authProvider: 'serviceAccount'
           skipTLSVerify: false
           skipMetricsLookup: true
-          token: file:///var/run/secrets/kubernetes.io/serviceaccount/token
