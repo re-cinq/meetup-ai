@@ -8,22 +8,31 @@ data:
     catalog:
       rules:
         - allow: [Component, API, Resource, Location, System, Domain, User, Group, Template]
-          locations:
-            - type: configmap
-              target: backstage/backstage-entities
-              allow:
-                - Group
-                - User
-                - Component
-            - type: url
-              target: https://raw.githubusercontent.com/re-cinq/meetup-ai/main/backstage/templates/ml-model-template.yaml
-              auth:
-                token: ${GITHUB_TOKEN}
+      locations:
+        - type: configmap
+          target: backstage/backstage-entities
+          allow:
+            - Group
+            - User
+            - Component
+        - type: file
+          target: /app/templates/ml-model-template.yaml
+          rules:
+            - allow: [Template]
+
+    # TechDocs configuration (required at root level)
+    techdocs:
+      builder: local
+      generator:
+        runIn: docker
+      publisher:
+        type: local
     
     # Enable events plugin
     events:
       backend:
         enabled: true
+    
     # Kubernetes integration
     kubernetes:
       serviceLocatorMethod:
@@ -35,3 +44,5 @@ data:
               serviceAccountToken: ${K8S_SERVICE_ACCOUNT_TOKEN}
               url: ${K8S_CLUSTER_URL}
               skipTLSVerify: false
+              authProvider: 'serviceAccount'
+              skipMetricsLookup: true
