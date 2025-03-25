@@ -8,16 +8,18 @@ data:
     # Force database reset and reindexing
     catalog:
       database:
-        resetOnStartup: true  # Make sure this is enabled
+        resetOnStartup: true
       processingInterval:
-        milliseconds: 10000  # Process more frequently
+        milliseconds: 10000
       rules:
-        - allow: [Component, API, Resource, Location, System, Domain, User, Group, Template]
+        allow: [Component, System, API, Resource, Location, Template, Group, User]
       locations:
         - type: url
           target: https://github.com/re-cinq/meetup-ai/blob/main/backstage/templates/ml-model-template.yaml
           rules:
             - allow: [Template]
+        - type: file
+          target: /app/examples/entities.yaml
       providers:
         backstageOpenapi:
           plugins:
@@ -27,30 +29,24 @@ data:
         file:
           bootstrap: true
           bootstrapPath: /app/examples
-        - type: file
-          target: /app/examples/entities.yaml
-        - type: url
-          target: https://github.com/re-cinq/meetup-ai/blob/main/backstage/templates/ml-model-template.yaml
-      rules:
-        allow: [Component, System, API, Resource, Location, Template, Group, User]
+    
     backend:
       baseUrl: http://backstage.backstage.svc.cluster.local:7007
       logging:
         level: info
-    # Configure scaffolder with explicit debug mode
+    
+    # Configure scaffolder
     scaffolder:
       frontend:
-        filterTemplatesOnUserEntities: false  # DO NOT filter templates based on ownership
-        templateFilter: false  # Show all templates
+        filterTemplatesOnUserEntities: false
+        templateFilter: false
       log:
         level: info
       actions:
         enabled: true
       defaultActions: true
-      # Registry with FIXED URLs and direct templates ONLY
       registry:
         templates:
-          # Only include your direct template for testing
           - apiVersion: scaffolder.backstage.io/v1beta3
             kind: Template
             metadata:
@@ -93,26 +89,22 @@ data:
                   input:
                     message: "Test message"
     
-    # App config with debugging enabled
     app:
       title: AI Platform
       baseUrl: http://backstage.backstage.svc.cluster.local:7007
       frontend:
         debugEnabled: true
 
-    # Add this authentication configuration to the app-config.yaml
     auth:
       environment: development
       providers: 
         guest:
           enabled: true
-      # Disable token verification in development
       keys:
         development:
           skipKeyStoreCheck: true
       allowGuestAccess: true
     
-    # TechDocs configuration (required at root level)
     techdocs:
       builder: local
       generator:
@@ -120,12 +112,10 @@ data:
       publisher:
         type: local
     
-    # Enable events plugin
     events:
       backend:
         enabled: true
     
-    # Kubernetes integration
     kubernetes:
       serviceLocatorMethod:
         type: 'multiTenant'
@@ -133,13 +123,10 @@ data:
         - type: 'config'
           clusters:
             - name: ai-platform-cluster
-              serviceAccountToken: ${K8S_SERVICE_ACCOUNT_TOKEN}
               url: ${K8S_CLUSTER_URL}
               skipTLSVerify: false
               authProvider: 'serviceAccount'
               skipMetricsLookup: true
-        - clusters:
-            - authProvider: serviceAccount
-              skipMetricsLookup: true
+    
     cache:
       refreshIntervalSeconds: 5
