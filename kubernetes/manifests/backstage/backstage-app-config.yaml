@@ -10,7 +10,7 @@ data:
       database:
         resetOnStartup: true  # Make sure this is enabled
       processingInterval:
-        milliseconds: 1000  # Process more frequently
+        milliseconds: 10000  # Process more frequently
       rules:
         - allow: [Component, API, Resource, Location, System, Domain, User, Group, Template]
       locations:
@@ -18,15 +18,26 @@ data:
           target: https://github.com/re-cinq/meetup-ai/blob/main/backstage/templates/ml-model-template.yaml
           rules:
             - allow: [Template]
+      providers:
+        backstageOpenapi:
+          plugins:
+            - catalog
+            - scaffolder
+            - permission
+        file:
+          bootstrap: true
+          bootstrapPath: /app/examples
     backend:
       baseUrl: http://backstage.backstage.svc.cluster.local:7007
+      logging:
+        level: info
     # Configure scaffolder with explicit debug mode
     scaffolder:
       frontend:
         filterTemplatesOnUserEntities: false  # DO NOT filter templates based on ownership
         templateFilter: false  # Show all templates
       log:
-        level: debug
+        level: info
       actions:
         enabled: true
       defaultActions: true
@@ -93,6 +104,7 @@ data:
       keys:
         development:
           skipKeyStoreCheck: true
+      allowGuestAccess: true
     
     # TechDocs configuration (required at root level)
     techdocs:
@@ -120,3 +132,8 @@ data:
               skipTLSVerify: false
               authProvider: 'serviceAccount'
               skipMetricsLookup: true
+        - clusters:
+            - authProvider: serviceAccount
+              skipMetricsLookup: true
+    cache:
+      refreshIntervalSeconds: 5
