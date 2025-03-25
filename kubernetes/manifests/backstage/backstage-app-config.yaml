@@ -12,7 +12,7 @@ data:
       processingInterval:
         milliseconds: 10000
       rules:
-        allow: [Component, System, API, Resource, Location, Template, Group, User]
+        - allow: [Component, System, API, Resource, Location, Template, Group, User]
       locations:
         - type: url
           target: https://github.com/re-cinq/meetup-ai/blob/main/backstage/templates/ml-model-template.yaml
@@ -94,6 +94,10 @@ data:
       baseUrl: http://backstage.backstage.svc.cluster.local:7007
       frontend:
         debugEnabled: true
+        packages:
+        - name: app
+          version: 0.0.0
+          path: /app/packages/app
 
     auth:
       environment: development
