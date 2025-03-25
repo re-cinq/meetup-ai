@@ -22,3 +22,6 @@ data:
           port: 5432
           user: backstage
           password: backstage
+      plugins:
+        app:
+          enabled: false
