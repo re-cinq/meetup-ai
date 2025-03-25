@@ -127,6 +127,9 @@ spec:
         - name: backstage-app-config
           mountPath: /app/app-config.yaml
           subPath: app-config.yaml
+        - name: backend-config
+          mountPath: /app/app-config.production.yaml
+          subPath: app-config.production.yaml
       volumes:
       - name: entities
         configMap:
@@ -134,3 +137,6 @@ spec:
       - name: backstage-app-config
         configMap:
           name: backstage-app-config
+      - name: backend-config
+        configMap:
+          name: backstage-backend-config
