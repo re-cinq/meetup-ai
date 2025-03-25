@@ -115,8 +115,8 @@ spec:
           value: "http://backstage.backstage.svc.cluster.local:7007"
         resources:
           limits:
-            memory: "1Gi"
-            cpu: "500m"
+            memory: "4Gi"
+            cpu: "1000m"
           requests:
             memory: "512Mi"
             cpu: "250m"
