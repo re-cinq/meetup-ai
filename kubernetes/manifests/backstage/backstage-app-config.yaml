@@ -27,6 +27,12 @@ data:
         file:
           bootstrap: true
           bootstrapPath: /app/examples
+        - type: file
+          target: /app/examples/entities.yaml
+        - type: url
+          target: https://github.com/re-cinq/meetup-ai/blob/main/backstage/templates/ml-model-template.yaml
+      rules:
+        allow: [Component, System, API, Resource, Location, Template, Group, User]
     backend:
       baseUrl: http://backstage.backstage.svc.cluster.local:7007
       logging:
@@ -90,7 +96,7 @@ data:
     # App config with debugging enabled
     app:
       title: AI Platform
-      baseUrl: http://localhost:3000
+      baseUrl: http://backstage.backstage.svc.cluster.local:7007
       frontend:
         debugEnabled: true
 
