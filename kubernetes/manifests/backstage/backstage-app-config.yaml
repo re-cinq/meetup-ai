@@ -18,7 +18,8 @@ data:
           target: https://github.com/re-cinq/meetup-ai/blob/main/backstage/templates/ml-model-template.yaml
           rules:
             - allow: [Template]
-
+    backend:
+      baseUrl: http://backstage.backstage.svc.cluster.local:7007
     # Configure scaffolder with explicit debug mode
     scaffolder:
       frontend:
