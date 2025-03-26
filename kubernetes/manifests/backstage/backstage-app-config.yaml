@@ -94,6 +94,7 @@ data:
       baseUrl: http://backstage.backstage.svc.cluster.local:7007
       frontend:
         debugEnabled: true
+        baseUrl: http://backstage.backstage.svc.cluster.local:7007
       packages:
         - name: example-app
           version: 0.2.107
