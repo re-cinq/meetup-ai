@@ -19,7 +19,6 @@ data:
           rules:
             - allow: [Template]
 
-    # Configure scaffolder with explicit debug mode
     scaffolder:
       frontend:
         filterTemplatesOnUserEntities: false  # DO NOT filter templates based on ownership
