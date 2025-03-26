@@ -1,0 +1,82 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: simple-llama-gke-deployment
+  title: Simple Llama Deployment on GKE
+  description: Deploys meta-llama/Llama-2-7b-chat-hf on GKE using TGI in a specified namespace.
+  tags:
+    - llama
+    - gke
+    - kubernetes
+    - tgi
+    - ml
+spec:
+  owner: ai-infra-team # Adjust owner as needed
+  type: service
+
+  parameters:
+    - title: Deployment Target
+      required:
+        - namespace
+        # Consider adding cluster selection if multiple clusters are configured
+        # - clusterName
+      properties:
+        namespace:
+          title: Kubernetes Namespace
+          type: string
+          description: Target namespace on GKE for the Llama deployment (must exist and contain 'hf-secret').
+          ui:field: KubernetesNamespacePicker # Optional: Use specific UI component if available
+          ui:options:
+            allowedKinds: ['Namespace']
+        # clusterName:
+        #   title: Target Cluster
+        #   type: string
+        #   description: Name of the GKE cluster to deploy to.
+        #   ui:field: KubernetesClusterPicker # Optional: Use specific UI component
+
+  steps:
+    # Step 1: Fetch the pre-defined Kubernetes manifest template
+    # This manifest specifically targets Llama-2-7b, TGI, and nvidia-t4 GPUs.
+    - id: fetch-manifest
+      name: Fetch Kubernetes Manifest Template
+      action: fetch:template
+      input:
+        url: https://raw.githubusercontent.com/re-cinq/meetup-ai/main/backstage/templates/llama-deployment.yaml.hbs
+        values:
+          # Pass the user-provided namespace to the template
+          namespace: ${{ parameters.namespace }}
+          # The template itself seems to hardcode the model, image, GPU, etc.
+
+    # Step 2: Apply the fetched and processed manifest to the target cluster
+    # This requires the Backstage backend to have appropriate Kubernetes credentials.
+    - id: apply-manifest
+      name: Apply Manifest to GKE Cluster
+      action: kubernetes:apply
+      input:
+        # Use the path where fetch:template downloaded the processed manifest
+        manifestPath: ${{ steps.fetch-manifest.output.path }}
+        # If you added a clusterName parameter, you might need to specify it:
+        # clusterRef: ${{ parameters.clusterName }} # Adjust based on your K8s plugin config
+
+    # Optional: Add a wait step if needed, like in your first example
+    - id: wait-for-deployment
+      name: Wait for Deployment to Become Available
+      action: kubernetes:wait # Requires Kubernetes plugin >= v0.9.0
+      input:
+        apiVersion: apps/v1 # Explicitly state apiVersion for Deployment
+        kind: Deployment
+        # Assuming the manifest creates a deployment named like this:
+        name: llama-deployment-${{ parameters.namespace }}
+        namespace: ${{ parameters.namespace }}
+        for: condition=Available=true # Wait for the Available condition
+        timeoutSeconds: 300 # Wait up to 5 minutes
+
+  output:
+    links:
+      - title: TGI Documentation
+        url: https://huggingface.co/docs/text-generation-inference/index
+      - title: Deployed Model (Example - Check Service/Ingress)
+        icon: dashboard
+        # Note: The manifest MUST create a Service/Ingress for this link to be meaningful.
+        # This URL structure is a guess and depends entirely on how you expose the service.
+        url: http://llama-service.${{ parameters.namespace }}.svc.cluster.local:8080 # Example internal URL
