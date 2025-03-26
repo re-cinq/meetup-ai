@@ -36,8 +36,6 @@ data:
         level: debug  # Change to debug for more info
       listen:
         port: 7007
-      staticAssets:
-        mountPoint: /static
       serve:
         static:
           assets:
