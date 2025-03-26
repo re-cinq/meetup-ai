@@ -1,9 +1,10 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: simple-llama-gke-deployment
-  title: Simple Llama Deployment on GKE
-  description: Deploys meta-llama/Llama-2-7b-chat-hf on GKE using TGI in a specified namespace.
+  # Renamed slightly to reflect the change
+  name: embedded-llama-gke-deployment
+  title: Embedded Llama Deployment on GKE
+  description: Deploys meta-llama/Llama-2-7b-chat-hf on GKE using an embedded manifest.
   tags:
     - llama
     - gke
@@ -35,37 +36,63 @@ spec:
         #   ui:field: KubernetesClusterPicker # Optional: Use specific UI component
 
   steps:
-    # Step 1: Fetch the pre-defined Kubernetes manifest template
-    # This manifest specifically targets Llama-2-7b, TGI, and nvidia-t4 GPUs.
-    - id: fetch-manifest
-      name: Fetch Kubernetes Manifest Template
-      action: fetch:template
-      input:
-        url: https://raw.githubusercontent.com/re-cinq/meetup-ai/main/backstage/templates/llama-deployment.yaml.hbs
-        values:
-          # Pass the user-provided namespace to the template
-          namespace: ${{ parameters.namespace }}
-          # The template itself seems to hardcode the model, image, GPU, etc.
-
-    # Step 2: Apply the fetched and processed manifest to the target cluster
+    # Step 1: Apply the embedded manifest directly to the target cluster
     # This requires the Backstage backend to have appropriate Kubernetes credentials.
     - id: apply-manifest
-      name: Apply Manifest to GKE Cluster
+      name: Apply Embedded Manifest to GKE Cluster
       action: kubernetes:apply
       input:
-        # Use the path where fetch:template downloaded the processed manifest
-        manifestPath: ${{ steps.fetch-manifest.output.path }}
+        # Use the 'manifest' input with the YAML content directly embedded
+        manifest: |
+          # --- Start of Embedded Kubernetes Manifest ---
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            # Backstage templating will correctly substitute the namespace here
+            name: llama-deployment-${{ parameters.namespace }}
+            namespace: "${{ parameters.namespace }}"
+            labels:
+              app: llama-app
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app: llama-app
+            template:
+              metadata:
+                labels:
+                  app: llama-app
+              spec:
+                nodeSelector:
+                  cloud.google.com/gke-accelerator: nvidia-tesla-t4
+                containers:
+                  - name: llama-container
+                    image: ghcr.io/huggingface/text-generation-inference:latest
+                    ports:
+                      - containerPort: 8080
+                    env:
+                      - name: MODEL_ID
+                        value: meta-llama/Llama-2-7b-chat-hf
+                      - name: HF_TOKEN
+                        valueFrom:
+                          secretKeyRef:
+                            name: hf-secret
+                            key: hf_token
+                    resources:
+                      limits:
+                        nvidia.com/gpu: 1
+          # --- End of Embedded Kubernetes Manifest ---
         # If you added a clusterName parameter, you might need to specify it:
         # clusterRef: ${{ parameters.clusterName }} # Adjust based on your K8s plugin config
 
-    # Optional: Add a wait step if needed, like in your first example
+    # Optional but recommended: Wait for the deployment to become available
     - id: wait-for-deployment
       name: Wait for Deployment to Become Available
       action: kubernetes:wait # Requires Kubernetes plugin >= v0.9.0
       input:
         apiVersion: apps/v1 # Explicitly state apiVersion for Deployment
         kind: Deployment
-        # Assuming the manifest creates a deployment named like this:
+        # The name must match the metadata.name defined in the embedded manifest
         name: llama-deployment-${{ parameters.namespace }}
         namespace: ${{ parameters.namespace }}
         for: condition=Available=true # Wait for the Available condition
