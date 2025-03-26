@@ -38,6 +38,11 @@ data:
         port: 7007
       staticAssets:
         mountPoint: /static
+      serve:
+        static:
+          assets:
+            - target: /
+              source: /app/packages/app/dist
     
     # Configure scaffolder
     scaffolder:
