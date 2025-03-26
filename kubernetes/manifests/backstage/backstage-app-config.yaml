@@ -33,9 +33,12 @@ data:
     backend:
       baseUrl: http://backstage.backstage.svc.cluster.local:7007
       logging:
-        level: info
+        level: debug  # Change to debug for more info
+      listen:
+        port: 7007
       staticAssets:
         mountPoint: /static
+        path: /app/packages/app/dist  # Add this line
     
     # Configure scaffolder
     scaffolder:
@@ -97,6 +100,7 @@ data:
       frontend:
         debugEnabled: true
         baseUrl: http://backstage.backstage.svc.cluster.local:7007
+        buildFolder: /app/packages/app/dist  # Add this line
       packages:
         - name: example-app
           version: 0.2.107
