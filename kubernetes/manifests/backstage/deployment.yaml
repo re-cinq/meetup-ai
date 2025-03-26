@@ -120,19 +120,19 @@ spec:
           requests:
             memory: "512Mi"
             cpu: "250m"
-        volumeMounts:
-        - name: entities
-          mountPath: /app/examples/entities.yaml
-          subPath: entities.yaml
- #       - name: backstage-app-config
- #         mountPath: /app/app-config.yaml
- #         subPath: app-config.yaml
- #       - mountPath: /app/packages/app/dist
- #         name: app-dist
-      volumes:
-      - name: entities
-        configMap:
-          name: backstage-entities
+#        volumeMounts:
+#        - name: entities
+#          mountPath: /app/examples/entities.yaml
+#          subPath: entities.yaml
+#       - name: backstage-app-config
+#         mountPath: /app/app-config.yaml
+#         subPath: app-config.yaml
+#       - mountPath: /app/packages/app/dist
+#         name: app-dist
+#      volumes:
+#      - name: entities
+#        configMap:
+#          name: backstage-entities
 #      - name: backstage-app-config
 #        configMap:
 #          name: backstage-app-config
