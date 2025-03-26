@@ -23,7 +23,7 @@ spec:
       name: Fetch Kubernetes Manifest
       action: fetch:template
       input:
-        url: ./templates/llama-deployment.yaml.hbs
+        url: https://github.com/re-cinq/meetup-ai/blob/main/backstage/templates/llama-deployment.yaml.hbs
         values:
           namespace: ${{ parameters.namespace }}
 
