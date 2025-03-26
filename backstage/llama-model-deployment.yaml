@@ -23,7 +23,7 @@ spec:
       name: Fetch Kubernetes Manifest
       action: fetch:template
       input:
-        url: ./template/llama-deployment.yaml.hbs
+        url: ./templates/llama-deployment.yaml.hbs
         values:
           namespace: ${{ parameters.namespace }}
 
