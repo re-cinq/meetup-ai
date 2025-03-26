@@ -134,3 +134,20 @@ data:
     
     cache:
       refreshIntervalSeconds: 5
+
+    scorecards:
+      enabled: true
+      disabled: false
+      components:
+        default:
+          title: Default Components
+          description: Default scorecard for components
+          filter: kind:component
+          cards:
+            - title: ML Model Readiness
+              type: basic
+              description: Checks if the ML model is properly configured
+              spec:
+                min: 0
+                max: 100
+                unit: "%"
