@@ -34,6 +34,8 @@ data:
       baseUrl: http://backstage.backstage.svc.cluster.local:7007
       logging:
         level: info
+      staticAssets:
+        mountPoint: /static
     
     # Configure scaffolder
     scaffolder:
