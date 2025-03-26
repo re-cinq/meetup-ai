@@ -8,9 +8,9 @@ data:
     # Force database reset and reindexing
     catalog:
       database:
-        resetOnStartup: true  # Make sure this is enabled
+        resetOnStartup: true
       processingInterval:
-        milliseconds: 1000  # Process more frequently
+        milliseconds: 1000
       rules:
         - allow: [Component, API, Resource, Location, System, Domain, User, Group, Template]
       locations:
