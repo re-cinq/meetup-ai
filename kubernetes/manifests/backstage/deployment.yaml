@@ -20,8 +20,8 @@ spec:
         effect: "NoSchedule"
       containers:
       - name: backstage
-        image: ghcr.io/backstage/backstage:latest
-        #image: europe-west4-docker.pkg.dev/meetup-ai/meetup-ai/backstage-custom:1.0.11
+        #image: ghcr.io/backstage/backstage:latest
+        image: europe-west4-docker.pkg.dev/meetup-ai/meetup-ai/backstage-custom:1.1.15
         ports:
         - containerPort: 7007
         env:
@@ -127,6 +127,8 @@ spec:
         - name: backstage-app-config
           mountPath: /app/app-config.yaml
           subPath: app-config.yaml
+        - mountPath: /app/packages/app/dist
+          name: app-dist
       volumes:
       - name: entities
         configMap:
@@ -134,3 +136,5 @@ spec:
       - name: backstage-app-config
         configMap:
           name: backstage-app-config
+      - name: app-dist
+        emptyDir: {}
