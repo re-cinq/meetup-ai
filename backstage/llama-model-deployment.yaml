@@ -1,0 +1,46 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: llama-model-deployment
+  title: Deploy Llama Model on GKE
+  description: Deploys a Llama language model from Hugging Face to a specified Kubernetes namespace on GKE using Text Generation Inference (TGI).
+spec:
+  owner: data-scientists
+  type: ai-deployment
+
+  parameters:
+    - title: Deployment Configuration
+      required:
+        - namespace
+      properties:
+        namespace:
+          title: Kubernetes Namespace
+          type: string
+          description: The target Kubernetes namespace for the Llama model deployment.
+
+  steps:
+    - id: fetch-manifest
+      name: Fetch Kubernetes Manifest
+      action: fetch:template
+      input:
+        url: ./template/llama-deployment.yaml.hbs
+        values:
+          namespace: ${{ parameters.namespace }}
+
+    # The following step would typically involve applying the manifest to the GKE cluster.
+    # This might require a custom action or integration with a GitOps system.
+    # For this example, we'll just output the generated manifest.
+    - id: output-manifest
+      name: Output Kubernetes Manifest
+      action: debug:log
+      input:
+        message: |
+          Generated Kubernetes Deployment Manifest:
+          ${{ steps.fetch-manifest.output.result }}
+
+  output:
+    links:
+      - title: Kubernetes Namespace Documentation
+        url: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
+      - title: Hugging Face Text Generation Inference
+        url: https://huggingface.co/docs/text-generation-inference/index

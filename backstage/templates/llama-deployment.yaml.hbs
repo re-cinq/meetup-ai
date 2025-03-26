@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llama-deployment-{{ parameters.namespace }}
+  namespace: "{{ parameters.namespace }}"
+  labels:
+    app: llama-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: llama-app
+  template:
+    metadata:
+      labels:
+        app: llama-app
+    spec:
+      nodeSelector:
+        cloud.google.com/gke-accelerator: nvidia-tesla-t4
+      containers:
+        - name: llama-container
+          image: ghcr.io/huggingface/text-generation-inference:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: MODEL_ID
+              value: meta-llama/Llama-2-7b-chat-hf # You might want to parameterize this later
+            - name: HF_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hf-secret
+                  key: hf_token
+          resources:
+            limits:
+              nvidia.com/gpu: 1
