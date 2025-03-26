@@ -18,31 +18,6 @@ data:
           target: https://github.com/re-cinq/meetup-ai/blob/main/backstage/templates/ml-model-template.yaml
           rules:
             - allow: [Template]
-        - type: file
-          target: /app/examples/entities.yaml
-      providers:
-        backstageOpenapi:
-          plugins:
-            - catalog
-            - scaffolder
-            - permission
-        file:
-          bootstrap: true
-          bootstrapPath: /app/examples
-    
-    backend:
-      baseUrl: http://backstage.backstage.svc.cluster.local:7007
-      logging:
-        level: debug  # Change to debug for more info
-      listen:
-        port: 7007
-      serve:
-        static:
-          assets:
-            - target: /
-              source: /app/packages/app/dist
-    
-    # Configure scaffolder
     scaffolder:
       frontend:
         filterTemplatesOnUserEntities: false
