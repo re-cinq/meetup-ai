@@ -10,7 +10,7 @@ data:
       database:
         resetOnStartup: true
       processingInterval:
-        milliseconds: 10000
+        milliseconds: 1000
       rules:
         - allow: [Component, System, API, Resource, Location, Template, Group, User]
       locations:
