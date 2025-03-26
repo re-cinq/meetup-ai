@@ -135,11 +135,18 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+# Terraform - ignore state and operational files
+terraform/**/.terraform/
+terraform/**/.terraform.lock.hcl
+terraform/**/.terraform.tfstate.lock.info
+terraform/**/terraform.tfstate
+terraform/**/terraform.tfstate.*
+**/.terraform/
+**/.terraform.lock.hcl
+**/*.tfstate
+**/*.tfstate.*
+**/terraform.tfstate.backup
 
-terraform/.terraform.lock.hcl
-terraform/.terraform.tfstate.lock.info
-terraform/.terraform/
-terraform/terraform.tfstate
-terraform/terraform.tfstate.*
-terraform.tfstate.backup
+# Secrets
 .sec.env
+**/*.tfvars

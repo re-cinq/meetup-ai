@@ -12,27 +12,23 @@ data:
       processingInterval:
         milliseconds: 1000
       rules:
-        - allow: [Component, API, Resource, Location, System, Domain, User, Group, Template]
+        - allow: [Component, System, API, Resource, Location, Template, Group, User]
       locations:
         - type: url
           target: https://github.com/re-cinq/meetup-ai/blob/main/backstage/templates/ml-model-template.yaml
           rules:
             - allow: [Template]
-
-    # Configure scaffolder with explicit debug mode
     scaffolder:
       frontend:
-        filterTemplatesOnUserEntities: false  # DO NOT filter templates based on ownership
-        templateFilter: false  # Show all templates
+        filterTemplatesOnUserEntities: false
+        templateFilter: false
       log:
-        level: debug
+        level: info
       actions:
         enabled: true
       defaultActions: true
-      # Registry with FIXED URLs and direct templates ONLY
       registry:
         templates:
-          # Only include your direct template for testing
           - apiVersion: scaffolder.backstage.io/v1beta3
             kind: Template
             metadata:
@@ -75,25 +71,27 @@ data:
                   input:
                     message: "Test message"
     
-    # App config with debugging enabled
     app:
       title: AI Platform
-      baseUrl: http://localhost:3000
+      baseUrl: http://backstage.backstage.svc.cluster.local:7007
       frontend:
         debugEnabled: true
+        baseUrl: http://backstage.backstage.svc.cluster.local:7007
+      packages:
+        - name: example-app
+          version: 0.2.107
+          path: /app/packages/app
 
-    # Add this authentication configuration to the app-config.yaml
     auth:
       environment: development
       providers: 
         guest:
           enabled: true
-      # Disable token verification in development
       keys:
         development:
           skipKeyStoreCheck: true
+      allowGuestAccess: true
     
-    # TechDocs configuration (required at root level)
     techdocs:
       builder: local
       generator:
@@ -101,12 +99,10 @@ data:
       publisher:
         type: local
     
-    # Enable events plugin
     events:
       backend:
         enabled: true
     
-    # Kubernetes integration
     kubernetes:
       serviceLocatorMethod:
         type: 'multiTenant'
@@ -114,8 +110,27 @@ data:
         - type: 'config'
           clusters:
             - name: ai-platform-cluster
-              serviceAccountToken: ${K8S_SERVICE_ACCOUNT_TOKEN}
               url: ${K8S_CLUSTER_URL}
               skipTLSVerify: false
               authProvider: 'serviceAccount'
               skipMetricsLookup: true
+    
+    cache:
+      refreshIntervalSeconds: 5
+
+    scorecards:
+      enabled: true
+      disabled: false
+      components:
+        default:
+          title: Default Components
+          description: Default scorecard for components
+          filter: kind:component
+          cards:
+            - title: ML Model Readiness
+              type: basic
+              description: Checks if the ML model is properly configured
+              spec:
+                min: 0
+                max: 100
+                unit: "%"
