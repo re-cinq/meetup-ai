@@ -21,7 +21,7 @@ spec:
       containers:
       - name: backstage
         #image: ghcr.io/backstage/backstage:latest
-        image: europe-west4-docker.pkg.dev/meetup-ai/meetup-ai/backstage-custom:1.1.18
+        image: europe-west4-docker.pkg.dev/meetup-ai/meetup-ai/backstage-custom:1.1.19
         ports:
         - containerPort: 7007
         env:
@@ -53,64 +53,6 @@ spec:
           value: "true"
         - name: BACKSTAGE_APP_CONFIG_auth_allowGuestAccess
           value: "true"
-        - name: BACKSTAGE_APP_CONFIG_app_title
-          value: "ML Platform"
-        - name: BACKSTAGE_APP_CONFIG_catalog_locations_0_type
-          value: "file"
-        - name: BACKSTAGE_APP_CONFIG_catalog_locations_0_target
-          value: "/app/examples/entities.yaml"
-        - name: BACKSTAGE_APP_CONFIG_catalog_providers_file_bootstrap
-          value: "true"
-        - name: BACKSTAGE_APP_CONFIG_catalog_providers_file_bootstrapPath
-          value: "/app/examples"
-        - name: BACKSTAGE_APP_CONFIG_catalog_rules_allow
-          value: "[Component, System, API, Resource, Location, Template, Group, User]"
-        - name: BACKSTAGE_APP_CONFIG_catalog_locations_0_rules_0_allow
-          value: "[Component, System, API, Resource, Location, Template, Group, User]"
-        - name: BACKSTAGE_APP_CONFIG_catalog_locations_1_rules_0_allow
-          value: "[Component, System, API, Resource, Location, Template, Group, User]"
-        - name: BACKSTAGE_APP_CONFIG_catalog_rules_allow_0
-          value: "[Component, System, API, Resource, Location, Template, Group, User]"
-        - name: BACKSTAGE_APP_CONFIG_catalog_database_resetOnStartup
-          value: "true"
-        - name: BACKSTAGE_APP_CONFIG_backend_logging_level
-          value: "info"
-        - name: BACKSTAGE_APP_CONFIG_catalog_locations_1_type
-          value: "url"
-        - name: BACKSTAGE_APP_CONFIG_catalog_locations_1_target
-          value: "https://github.com/re-cinq/meetup-ai/blob/main/backstage/templates/ml-model-template.yaml"
-        - name: BACKSTAGE_APP_CONFIG_auth_environment
-          value: "development"
-        - name: BACKSTAGE_APP_CONFIG_backend_log_level
-          value: "info"
-        - name: BACKSTAGE_APP_CONFIG_techdocs_builder
-          value: "local"
-        - name: BACKSTAGE_APP_CONFIG_techdocs_generator_runIn
-          value: "docker"
-        - name: BACKSTAGE_APP_CONFIG_techdocs_publisher_type
-          value: "local"
-        - name: BACKSTAGE_APP_CONFIG_kubernetes_clusterLocatorMethods_0_clusters_0_authProvider
-          value: "serviceAccount"
-        - name: BACKSTAGE_APP_CONFIG_kubernetes_clusterLocatorMethods_0_clusters_0_skipMetricsLookup
-          value: "true"
-        - name: BACKSTAGE_APP_CONFIG_catalog_processors_scaffolderTemplateProcessor_enabled
-          value: "true"
-        - name: BACKSTAGE_APP_CONFIG_scaffolder_defaultActions
-          value: "true"
-        - name: BACKSTAGE_APP_CONFIG_app_frontend_debugEnabled
-          value: "false"
-        - name: BACKSTAGE_APP_CONFIG_scaffolder_frontend_filterTemplatesOnUserEntities
-          value: "false"
-        - name: BACKSTAGE_APP_CONFIG_catalog_processingInterval_milliseconds
-          value: "10000"
-        - name: BACKSTAGE_APP_CONFIG_scaffolder_log_level
-          value: "info"
-        - name: BACKSTAGE_APP_CONFIG_catalog_log_level
-          value: "info"
-        - name: LOG_LEVEL
-          value: "info"
-        - name: BACKSTAGE_APP_CONFIG_cache_refreshIntervalSeconds
-          value: "5"
         - name: BACKSTAGE_APP_CONFIG_backend_baseUrl
           value: "http://backstage.backstage.svc.cluster.local:7007"
         resources:
