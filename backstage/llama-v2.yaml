@@ -4,7 +4,7 @@ metadata:
   # Renamed slightly to reflect the change
   name: embedded-llama-gke-deployment
   title: Embedded Llama Deployment on GKE
-  description: Deploys meta-llama/Llama-2-7b-chat-hf on GKE using an embedded manifest.
+  description: Meta-llama/Llama-2-7b-chat-hf on GKE using an embedded manifest.
   tags:
     - llama
     - gke
