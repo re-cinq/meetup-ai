@@ -3,7 +3,7 @@ kind: Template
 metadata:
   name: llm-deployment-template
   title: LLM Deployments
-  description: Deploy a Large Language Model (LLM) from Hugging Face to Kubernetes with GPU support
+  description: Deploy a Large Language Model (LLM)
   tags:
     - llm
     - ml
@@ -126,11 +126,12 @@ spec:
       input:
         message: "Starting deployment of ${{ parameters.modelType }} model: ${{ parameters.modelName }} version ${{ parameters.modelVersion }}"
 
-    - id: create-namespace
-      name: Create Namespace
-      action: kubernetes:apply
+    - id: create-namespace-manifest
+      name: Create Namespace Manifest
+      action: fs:write
       input:
-        manifest: |
+        path: namespace.yaml
+        content: |
           apiVersion: v1
           kind: Namespace
           metadata:
@@ -138,6 +139,16 @@ spec:
             labels:
               app.kubernetes.io/part-of: llm-platform
               backstage.io/managed-by: backstage
+
+    - id: apply-namespace
+      name: Apply Namespace
+      action: run:exec
+      input:
+        command: kubectl
+        args: 
+          - apply
+          - -f
+          - namespace.yaml
 
     - id: template-k8s-manifest
       name: Create Kubernetes Manifests
@@ -161,9 +172,13 @@ spec:
 
     - id: publish-kubernetes
       name: Deploy to Kubernetes
-      action: kubernetes:apply
+      action: run:exec
       input:
-        manifestPath: ${{ steps.template-k8s-manifest.output.path }}
+        command: kubectl
+        args:
+          - apply
+          - -f
+          - ${{ steps.template-k8s-manifest.output.path }}
 
     - id: register-model
       name: Register Model in Catalog
@@ -174,13 +189,16 @@ spec:
 
     - id: wait-for-deployment
       name: Wait for Deployment
-      action: kubernetes:wait
+      action: run:exec
       input:
-        kind: Deployment
-        name: ${{ parameters.modelName | lower }}-deployment
-        namespace: ${{ parameters.namespace }}
-        for: condition=Available
-        timeoutSeconds: 300
+        command: kubectl
+        args:
+          - wait
+          - --for=condition=Available
+          - --timeout=300s
+          - deployment/${{ parameters.modelName | lower }}-deployment
+          - -n
+          - ${{ parameters.namespace }}
 
   output:
     links:
