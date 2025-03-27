@@ -51,7 +51,6 @@ meetup-ai/
 - Terraform installed
 - kubectl installed
 - Flux CLI installed
-- Backstage CLI installed
 
 ### Setup Instructions
 
