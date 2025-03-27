@@ -3,7 +3,7 @@ kind: Template
 metadata:
   # Renamed slightly to reflect the change
   name: embedded-llama-gke-deployment
-  title: Embedded Llama Deployment on GKE
+  title: Llama Deployment on GKE
   description: Meta-llama/Llama-2-7b-chat-hf on GKE using an embedded manifest.
   tags:
     - llama
