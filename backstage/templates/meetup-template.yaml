@@ -93,138 +93,20 @@ spec:
       action: fetch:template
       input:
         url: ./content
-        targetPath: working-dir
+        targetPath: ./
         values:
           name: ${{ parameters.name }}
           namespace: ${{ parameters.namespace }}
           modelServer: ${{ parameters.modelServer }}
           modelName: ${{ parameters.modelName if parameters.modelServer === 'Existing model server' else parameters.modelNameDeployed }}
-    
-    - id: generate-k8s-manifests
-      name: Generate Kubernetes Manifests
-      action: fetch:template
-      input:
-        url: ./k8s-manifests
-        targetPath: working-dir/k8s
-        values:
-          name: ${{ parameters.name }}
-          namespace: ${{ parameters.namespace }}
-          modelServer: ${{ parameters.modelServer }}
+          owner: ${{ parameters.owner }}
           appPort: 8501
           modelServicePort: 8001
           vllmSelected: ${{ parameters.modelServer === 'vLLM' }}
           existingModelServer: ${{ parameters.modelServer === 'Existing model server' }}
           modelEndpoint: ${{ parameters.modelEndpoint }}
-          modelName: ${{ parameters.modelName if parameters.modelServer === 'Existing model server' else parameters.modelNameDeployed }}
-    
-    - id: generate-namespace-yaml
-      name: Generate Namespace YAML
-      action: fs:write
-      input:
-        path: working-dir/k8s/00-namespace.yaml
-        content: |
-          apiVersion: v1
-          kind: Namespace
-          metadata:
-            name: ${{ parameters.namespace }}
-    
-    - id: generate-deployment-script
-      name: Generate Deployment Script
-      action: fs:write
-      input:
-        path: working-dir/deploy.sh
-        content: |
-          #!/bin/bash
-          set -e
-          
-          # Create namespace and deploy application
-          echo "Creating namespace ${{ parameters.namespace }}..."
-          kubectl apply -f k8s/00-namespace.yaml
-          
-          echo "Deploying application to Kubernetes..."
-          kubectl apply -f k8s/
-          
-          echo "Deployment complete!"
-          echo "You can access the application at: http://${{ parameters.name }}.${{ parameters.namespace }}.svc.cluster.local"
-          echo "To port-forward and access from your machine: kubectl port-forward -n ${{ parameters.namespace }} svc/${{ parameters.name }} 8501:8501"
-    
-    - id: make-script-executable
-      name: Make Deployment Script Executable
-      action: fs:chmod
-      input:
-        path: working-dir/deploy.sh
-        mode: 0755
-    
-    - id: create-readme
-      name: Create README
-      action: fs:write
-      input:
-        path: working-dir/README.md
-        content: |
-          # ${{ parameters.name }} Chatbot Application
-          
-          This directory contains Kubernetes manifests to deploy an LLM-enabled chatbot application.
-          
-          ## Deployment Instructions
-          
-          1. Make sure you have `kubectl` installed and configured with access to your Kubernetes cluster
-          2. Run the deployment script:
-          
-          ```bash
-          ./deploy.sh
-          ```
-          
-          ## Accessing the Application
-          
-          The application will be deployed to the `${{ parameters.namespace }}` namespace.
-          
-          - In-cluster URL: `http://${{ parameters.name }}.${{ parameters.namespace }}.svc.cluster.local`
-          - To access from your local machine: 
-          
-          ```bash
-          kubectl port-forward -n ${{ parameters.namespace }} svc/${{ parameters.name }} 8501:8501
-          ```
-          
-          Then open `http://localhost:8501` in your browser.
-          
-          ## Configuration Details
-          
-          - Model Server: ${{ parameters.modelServer }}
-          - Model Name: ${{ parameters.modelName if parameters.modelServer === 'Existing model server' else parameters.modelNameDeployed }}
-    
-    - id: create-catalog-info
-      name: Create Catalog Info
-      action: fs:write
-      input:
-        path: working-dir/catalog-info.yaml
-        content: |
-          apiVersion: backstage.io/v1alpha1
-          kind: Component
-          metadata:
-            name: ${{ parameters.name }}
-            annotations:
-              backstage.io/kubernetes-namespace: ${{ parameters.namespace }}
-              backstage.io/kubernetes-label-selector: app=${{ parameters.name }}
-            tags:
-              - ai
-              - llm
-              - chatbot
-              - ${{ parameters.modelServer | lower }}
-          spec:
-            type: service
-            lifecycle: experimental
-            owner: ${{ parameters.owner }}
-    
-    - id: publish
-      name: Publish to Catalog
-      action: catalog:register
-      input:
-        catalogInfoPath: working-dir/catalog-info.yaml
-        
+
   output:
     links:
-      - title: Source Code
-        url: ./working-dir
-      - title: Open Catalog Entity
-        icon: catalog
-        entityRef: ${{ steps.publish.entityRef }}
+      - title: Deployment Instructions
+        url: ./README.md
