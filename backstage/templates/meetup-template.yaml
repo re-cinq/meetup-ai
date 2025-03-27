@@ -1,0 +1,163 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: chatbot-gke
+  title: GKE Chatbot Application
+  description: Deploy a Large Language Model (LLM)-enabled chat application directly to GKE.
+  tags: ["ai", "llamacpp", "vllm", "python", "gke"]
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+spec:
+  type: service
+  parameters:
+    - title: Application Information
+      required:
+        - name
+        - owner
+        - modelServer
+      properties:
+        name:
+          title: Name
+          type: string
+          description: Unique name of the component
+          ui:autofocus: true
+          ui:options:
+            rows: 5
+          maxLength: 63
+        owner:
+          title: Owner
+          type: string
+          description: Owner of the component
+          default: user:guest
+        modelServer:
+          title: Model Server
+          description: |
+            llama.cpp: A Python binding of LLM inference in C/C++ with minimal setup. | [Learn more](https://github.com/containers/ai-lab-recipes/tree/main/model_servers/llamacpp_python)
+
+            vLLM: A high throughput, memory efficient inference and serving engine with GPU support for LLMs in GKE. If you choose vLLM, ensure that your cluster has Nvidia GPU nodes available (with compute capability 7.0 or higher). | [Learn more](https://github.com/vllm-project/vllm)
+          default: llama.cpp
+          type: string
+          enum:
+            - vLLM
+            - llama.cpp
+            - Existing model server
+      dependencies:
+        modelServer:
+          oneOf:
+            - required:
+                - modelEndpoint
+                - modelName
+              properties:
+                modelServer:
+                  const: Existing model server
+                modelEndpoint:
+                  title: Model Server Endpoint
+                  type: string
+                  description: "The endpoint for an existing model server."
+                modelName:
+                  title: Model Name
+                  type: string
+                  ui:help: "The name of the model deployed on the model server you would like to use."
+            - properties:
+                modelServer:
+                  const: vLLM
+                modelNameDeployed:
+                  title: Model Name
+                  description: Text Generation | Apache-2.0 | [Learn more](https://huggingface.co/instructlab/granite-7b-lab)
+                  default: instructlab/granite-7b-lab
+                  type: string
+                  enum:
+                    - instructlab/granite-7b-lab
+            - properties:
+                modelServer:
+                  const: llama.cpp
+                modelNameDeployed:
+                  title: Model Name
+                  description: Text Generation | Apache-2.0 | [Learn more](https://huggingface.co/instructlab/granite-7b-lab)
+                  default: instructlab/granite-7b-lab
+                  type: string
+                  enum:
+                    - instructlab/granite-7b-lab
+    - title: GKE Deployment Information
+      required:
+        - namespace
+        - cluster
+      properties:
+        namespace:
+          title: Deployment Namespace
+          type: string
+          default: ai-apps
+          ui:autofocus: true
+        cluster:
+          title: GKE Cluster Name
+          type: string
+          description: Name of your GKE cluster
+        project:
+          title: GCP Project ID
+          type: string
+          description: Your Google Cloud Project ID
+        region:
+          title: GCP Region
+          type: string
+          default: us-central1
+          description: GCP region where your cluster is located
+  steps:
+    - id: fetch-base
+      name: Fetch Base
+      action: fetch:template
+      input:
+        url: ./content
+        targetPath: working-dir
+        values:
+          name: ${{ parameters.name }}
+          namespace: ${{ parameters.namespace }}
+          modelServer: ${{ parameters.modelServer }}
+          modelName: ${{ parameters.modelName if parameters.modelServer === 'Existing model server' else parameters.modelNameDeployed }}
+    
+    - id: generate-k8s-manifests
+      name: Generate Kubernetes Manifests
+      action: fetch:template
+      input:
+        url: ./k8s-manifests
+        targetPath: working-dir/k8s
+        values:
+          name: ${{ parameters.name }}
+          namespace: ${{ parameters.namespace }}
+          modelServer: ${{ parameters.modelServer }}
+          appPort: 8501
+          modelServicePort: 8001
+          vllmSelected: ${{ parameters.modelServer === 'vLLM' }}
+          existingModelServer: ${{ parameters.modelServer === 'Existing model server' }}
+          modelEndpoint: ${{ parameters.modelEndpoint }}
+          modelName: ${{ parameters.modelName if parameters.modelServer === 'Existing model server' else parameters.modelNameDeployed }}
+          
+    - id: authenticate-gke
+      name: Authenticate to GKE
+      action: kubernetes:authenticateGke
+      input:
+        clusterName: ${{ parameters.cluster }}
+        projectId: ${{ parameters.project }}
+        region: ${{ parameters.region }}
+    
+    - id: create-namespace
+      name: Create Namespace
+      action: kubernetes:apply
+      input:
+        manifest: |
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: ${{ parameters.namespace }}
+    
+    - id: deploy-application
+      name: Deploy Application to GKE
+      action: kubernetes:apply
+      input:
+        manifestPath: working-dir/k8s
+
+  output:
+    links:
+      - title: Chatbot Application
+        url: https://${{ parameters.name }}.${{ parameters.namespace }}.${{ parameters.cluster }}.cloud.goog
+      - title: Kubernetes Dashboard
+        url: https://console.cloud.google.com/kubernetes/workload/overview?project=${{ parameters.project }}
