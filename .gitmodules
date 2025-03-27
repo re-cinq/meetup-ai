@@ -1,3 +1,6 @@
 [submodule "backstage/templates/ollama-model-service"]
 	path = backstage/templates/ollama-model-service
 	url = https://github.com/redhat-ai-dev/model-catalog-example
+[submodule "backstage/templates/ai-lab"]
+	path = backstage/templates/ai-lab
+	url = https://github.com/redhat-ai-dev/ai-lab-template/
