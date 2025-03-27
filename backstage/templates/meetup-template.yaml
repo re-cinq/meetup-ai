@@ -192,16 +192,39 @@ spec:
           - Model Server: ${{ parameters.modelServer }}
           - Model Name: ${{ parameters.modelName if parameters.modelServer === 'Existing model server' else parameters.modelNameDeployed }}
     
+    - id: create-catalog-info
+      name: Create Catalog Info
+      action: fs:write
+      input:
+        path: working-dir/catalog-info.yaml
+        content: |
+          apiVersion: backstage.io/v1alpha1
+          kind: Component
+          metadata:
+            name: ${{ parameters.name }}
+            annotations:
+              backstage.io/kubernetes-namespace: ${{ parameters.namespace }}
+              backstage.io/kubernetes-label-selector: app=${{ parameters.name }}
+            tags:
+              - ai
+              - llm
+              - chatbot
+              - ${{ parameters.modelServer | lower }}
+          spec:
+            type: service
+            lifecycle: experimental
+            owner: ${{ parameters.owner }}
+    
     - id: publish
       name: Publish to Catalog
       action: catalog:register
       input:
-        catalogInfoPath: "working-dir/catalog-info.yaml"
+        catalogInfoPath: working-dir/catalog-info.yaml
         
   output:
     links:
       - title: Source Code
-        url: ${{ steps.publish.entityRef ?? 'https://github.com' }}
+        url: ./working-dir
       - title: Open Catalog Entity
         icon: catalog
         entityRef: ${{ steps.publish.entityRef }}
