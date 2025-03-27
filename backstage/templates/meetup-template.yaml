@@ -1,10 +1,10 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: chatbot-gke
-  title: GKE Chatbot Application
-  description: Deploy a Large Language Model (LLM)-enabled chat application directly to GKE.
-  tags: ["ai", "llamacpp", "vllm", "python", "gke"]
+  name: chatbot-k8s
+  title: Chatbot Application
+  description: Deploy a Large Language Model (LLM)-enabled chat application directly to Kubernetes.
+  tags: ["ai", "llamacpp", "vllm", "python", "kubernetes"]
   annotations:
     backstage.io/techdocs-ref: dir:.
 spec:
@@ -34,7 +34,7 @@ spec:
           description: |
             llama.cpp: A Python binding of LLM inference in C/C++ with minimal setup. | [Learn more](https://github.com/containers/ai-lab-recipes/tree/main/model_servers/llamacpp_python)
 
-            vLLM: A high throughput, memory efficient inference and serving engine with GPU support for LLMs in GKE. If you choose vLLM, ensure that your cluster has Nvidia GPU nodes available (with compute capability 7.0 or higher). | [Learn more](https://github.com/vllm-project/vllm)
+            vLLM: A high throughput, memory efficient inference and serving engine with GPU support for LLMs. If you choose vLLM, ensure that your cluster has Nvidia GPU nodes available (with compute capability 7.0 or higher). | [Learn more](https://github.com/vllm-project/vllm)
           default: llama.cpp
           type: string
           enum:
@@ -78,29 +78,15 @@ spec:
                   type: string
                   enum:
                     - instructlab/granite-7b-lab
-    - title: GKE Deployment Information
+    - title: Kubernetes Deployment Information
       required:
         - namespace
-        - cluster
       properties:
         namespace:
           title: Deployment Namespace
           type: string
           default: ai-apps
           ui:autofocus: true
-        cluster:
-          title: GKE Cluster Name
-          type: string
-          description: Name of your GKE cluster
-        project:
-          title: GCP Project ID
-          type: string
-          description: Your Google Cloud Project ID
-        region:
-          title: GCP Region
-          type: string
-          default: us-central1
-          description: GCP region where your cluster is located
   steps:
     - id: fetch-base
       name: Fetch Base
@@ -130,14 +116,6 @@ spec:
           existingModelServer: ${{ parameters.modelServer === 'Existing model server' }}
           modelEndpoint: ${{ parameters.modelEndpoint }}
           modelName: ${{ parameters.modelName if parameters.modelServer === 'Existing model server' else parameters.modelNameDeployed }}
-          
-    - id: authenticate-gke
-      name: Authenticate to GKE
-      action: kubernetes:authenticateGke
-      input:
-        clusterName: ${{ parameters.cluster }}
-        projectId: ${{ parameters.project }}
-        region: ${{ parameters.region }}
     
     - id: create-namespace
       name: Create Namespace
@@ -150,7 +128,7 @@ spec:
             name: ${{ parameters.namespace }}
     
     - id: deploy-application
-      name: Deploy Application to GKE
+      name: Deploy Application to Kubernetes
       action: kubernetes:apply
       input:
         manifestPath: working-dir/k8s
@@ -158,6 +136,6 @@ spec:
   output:
     links:
       - title: Chatbot Application
-        url: https://${{ parameters.name }}.${{ parameters.namespace }}.${{ parameters.cluster }}.cloud.goog
-      - title: Kubernetes Dashboard
-        url: https://console.cloud.google.com/kubernetes/workload/overview?project=${{ parameters.project }}
+        url: http://${{ parameters.name }}.${{ parameters.namespace }}.svc.cluster.local
+      - title: Kubernetes Namespace
+        url: /kubernetes/default/namespaces/${{ parameters.namespace }}
